@@ -1,0 +1,72 @@
+\section{Types}
+
+\subsection{Use of Generics}
+\begin{lstlisting}[language=Scala]
+//+A means, Queue[A] is covariant. If A is a subtype of B, then Queue[A] is also a subtype of Q[B]
+//Define a constructor in this class which declares a field of type List[A] that can be used to set the element list. Lists of type List are immutable
+// private (elements: List[A]) is the private primar constructor.
+class Queue[+A] private (elements: List[A]) {
+  def dequeue(): (A, Queue[A]) = {
+    return (elements.head, new Queue(elements.tail));
+  }
+
+  //Lower Bound: T should be a subtype of A, or A itself
+  def enqueue[T >: A](x: T) : Queue[T] = {
+    //You can use method :+ to append an element to a list.
+    return new Queue(elements :+ x);
+  }
+}
+
+object Queue{
+  //A parameter of type A* stands for an arbitrary number of arguments
+  def apply[A](elements: A*) : Queue[A] ={
+    new Queue(elements.toList);
+  }
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{Pair}
+\begin{lstlisting}
+// immutable:
+class Pair[+T,+S](val first: T, val second: S) {
+  def replaceFirst[U >: T](newFst: U): Pair[U,S] = new Pair(newFst, second)
+  def replaceSecond[U >: S](newSnd: U): Pair[T,U] = new Pair(first, newSnd)
+}
+
+// mutable:
+//private[this] var f means that the field f is only accessible from methods of the "this" object only, not from other objects of class PairM.
+class PairM[T,S](private[this] var f: T, private[this] var s: S) {
+  def first = f
+  def second = s
+  def replaceFirst (newFst: T) { f = newFst }
+  def replaceSecond (newSnd: S) { s = newSnd }
+}
+
+//Define a generic method swap that takes an immutable instance of class Pair and that returns a new instance of class Pair with exchanged parts.
+object Pair {
+  def swap[F, S](p: Pair[F,S]): Pair[S,F] = new Pair(p.second, p.first)
+  // result type: Pair[S,T]
+}
+
+//Define an analog generic method for mutable instances of class PairM that executes the swap in-place on the argument, i.e. which does not create a new object.
+object PairM {
+  def swap[S](p: PairM[S, S]) : Unit = {
+    val first = p.first
+    val second = p.second
+    p.replaceFirst(second)
+    p.replaceSecond(first)
+  }
+// This doesn't return anything. Instead, you are able to call this method only if your PairM consists of two elements with the same type. It will swap the elements of the object.
+}
+\end{lstlisting}
+
+\textbf{The type parameters of the class PairM cannot be defined covariant. Give an example that shows that it would not be type-safe to declare the class PairM covariant.} \\
+
+The mutable pair allows to change the values on the existing object itself. If the parameter of the class would be covariant, one would be allowed to also store values of subtypes of the existing pair and change the type of the existing object. This would not be type safe anymore.
+
+\textbf{Show analogously with a counterexample that the type parameters cannot be declared contravariant either.} \\
+
+Like in the answer of the covariant question: One would be able to store supertypes of the existing object's parameters and this would change the type of the object itself.
+
+\clearpage

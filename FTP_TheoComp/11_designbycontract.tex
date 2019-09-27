@@ -1,0 +1,211 @@
+\hypertarget{design-by-contract}{%
+\section{Design by Contract}\label{design-by-contract}}
+
+\begin{itemize}
+\tightlist
+\item
+  A contract defines obligations of both parties as well as their
+  benefits
+\item
+  It also defines what happens if obligations aren't fulfilled.
+\item
+  In software both parties are components
+
+  \begin{itemize}
+  \tightlist
+  \item
+    class, package, function, method
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{structure}{%
+\subsection{Structure}\label{structure}}
+
+\begin{itemize}
+\tightlist
+\item
+  Preconditions
+
+  \begin{itemize}
+  \tightlist
+  \item
+    what the client needs to provide as true
+  \item
+    require from the client
+  \end{itemize}
+\item
+  Postconditions
+
+  \begin{itemize}
+  \tightlist
+  \item
+    what the component promises to establish
+  \item
+    ensure to the client
+  \end{itemize}
+\item
+  Invariants
+
+  \begin{itemize}
+  \tightlist
+  \item
+    are conditions that remain true for the component implementing the
+    methods, regardless what happens
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{preconditions}{%
+\subsection{Preconditions}\label{preconditions}}
+
+\begin{itemize}
+\tightlist
+\item
+  must be true before call is made
+\item
+  client (caller) is responsible
+\item
+  supplier mustn't re-check preconditions
+\item
+  Opposite of ``Defensive Programming''
+\end{itemize}
+
+\hypertarget{postconditions}{%
+\subsection{Postconditions}\label{postconditions}}
+
+\begin{itemize}
+\tightlist
+\item
+  defines condition that is true after a call is finished
+\item
+  responsibility lies in the hand of the supplier (method)
+\item
+  when an exception can be thrown, there are two kinds of postconditions
+
+  \begin{itemize}
+  \tightlist
+  \item
+    normal postconditions
+
+    \begin{itemize}
+    \tightlist
+    \item
+      define behavior with regular control flow
+    \end{itemize}
+  \item
+    exceptional postconditions
+
+    \begin{itemize}
+    \tightlist
+    \item
+      define behavior when an exception was thrown
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{contracts-and-inheritance}{%
+\subsection{Contracts and Inheritance}\label{contracts-and-inheritance}}
+
+\begin{itemize}
+\tightlist
+\item
+  Contracts belong to the interface
+\item
+  implementing classes must fulfill given contract
+\end{itemize}
+
+\hypertarget{six-principles-for-dbc}{%
+\subsection{Six Principles for DbC}\label{six-principles-for-dbc}}
+
+\begin{itemize}
+\tightlist
+\item
+  Separate queries from commands.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Queries return a result but do not change the visible properties of
+    the object.
+  \item
+    Commands might change the object but do not return a result.
+  \end{itemize}
+\item
+  Separate basic queries from derived queries.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Derived queries can be specified in terms of basic queries.
+  \end{itemize}
+\item
+  For each derived query, write a postcondition that specifies what
+  result will be returned in terms of one or more basic queries.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Then, if we know the values of the basic queries, we also know the
+    values of the derived queries.
+  \end{itemize}
+\item
+  For each command, write a postcondition that specifies the value of
+  every basic query.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Now we know the total visible effect of each command.
+  \end{itemize}
+\item
+  For every query and command decide on a suitable precondition.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Preconditions constrain when clients may call the queries and
+    commands.
+  \end{itemize}
+\item
+  Write invariants to define unchanging properties of objects.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Concentrate on properties that help the reader build an appropriate
+    conceptual model of the abstraction the class embodies.
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{problems-with-dbc}{%
+\subsection{Problems with DbC}\label{problems-with-dbc}}
+
+\begin{itemize}
+\tightlist
+\item
+  Lack of language support (except for Eiffel)
+\item
+  Not used systematically
+\end{itemize}
+
+\hypertarget{benefits-of-dbc}{%
+\subsection{Benefits of DbC}\label{benefits-of-dbc}}
+
+\begin{itemize}
+\tightlist
+\item
+  Tool for specifying software components in a sound way
+
+  \begin{itemize}
+  \tightlist
+  \item
+    contracts abstract from implementation
+  \item
+    good documentation
+  \end{itemize}
+\item
+  Clearly defined responsibilities between client and supplier
+\item
+  Simpler code that would be required from defensive programming
+\end{itemize}
+
+\clearpage

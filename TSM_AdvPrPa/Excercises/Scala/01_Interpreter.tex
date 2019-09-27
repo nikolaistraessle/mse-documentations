@@ -1,0 +1,115 @@
+\section{Interpreter}
+
+\subsection{Testclass}
+
+\begin{lstlisting}[language=Scala]
+import Interpreter.evalBExpr
+import scala.collection.mutable.Map
+
+object Test {
+  def main(args: Array[String]) {
+    val bExpr = DyaBExpr(CondAnd, LitBExpr(true), LitBExpr(false)); //Comparision of true AND false
+    println(evalBExpr(bExpr, Map[String, Int]())); //Returns false
+
+    //Command to test interpreter
+    val intDiv = CpsCmd(List(
+      AssiCmd("q", LitAExpr(0)),
+      AssiCmd("r", IdAExpr("m")),
+      WhileCmd(
+        RelBExpr(GreaterEq, IdAExpr("r"), IdAExpr("n")),
+        CpsCmd(List(
+          AssiCmd("q", DyaAExpr(Plus, IdAExpr("q"), LitAExpr(1))),
+          AssiCmd("r", DyaAExpr(Minus, IdAExpr("r"), IdAExpr("n")))))),
+      SkipCmd));
+    val map = Map[String, Int]("m" -> 5, "n" -> 2) // initial values for m and n
+    println("map = " + map);
+    println("res = " + Interpreter.interpret(intDiv, map))
+  }
+}
+\end{lstlisting}
+
+\subsection{Syntax definition}
+
+\begin{lstlisting}[language=Scala]
+//Abstract class with only case objects. Case objects can be used if there are cases which take no parameter.
+abstract class RelOperator
+case object LessEq extends RelOperator
+case object GreaterEq extends RelOperator
+
+abstract class BoolOperator 
+case object CondAnd extends BoolOperator 
+case object CondOr extends BoolOperator 
+
+abstract class BoolExpr
+case class LitBExpr(value: Boolean) extends BoolExpr
+case class NegBExpr(expr: BoolExpr) extends BoolExpr
+case class DyaBExpr(operator: BoolOperator, op1: BoolExpr, op2: BoolExpr) extends BoolExpr // dyadic, means two
+case class RelBExpr(relOp: RelOperator, aExp1: ArithExpr, aExp2: ArithExpr) extends BoolExpr
+
+//Also working with different objects, no classes
+abstract class ArithOperator
+case object Times extends ArithOperator
+case object Div extends ArithOperator
+case object Mod extends ArithOperator
+case object Plus extends ArithOperator
+case object Minus extends ArithOperator
+
+abstract class ArithExpr
+case class LitAExpr(value: Int) extends ArithExpr
+case class IdAExpr(ident: String) extends ArithExpr
+case class DyaAExpr(op: ArithOperator, exp1: ArithExpr, exp2: ArithExpr) extends ArithExpr
+
+abstract class Command
+case class AssiCmd(ident: String, aExpr: ArithExpr) extends Command
+case class CpsCmd(commands: List[Command]) extends Command
+case class WhileCmd(bExpr: BoolExpr, command: Command) extends Command
+case object SkipCmd extends Command
+\end{lstlisting}
+
+\subsection{Interpreter}
+
+\begin{lstlisting}[language=Scala]
+//import scala.collection.Map  //This would be the immutable map (default)
+import scala.collection.mutable.Map //We need the mutable map
+
+object Interpreter {
+
+  type Value = Int
+  type State = Map[String, Value]
+
+  //Boolean Expressions
+  def evalBExpr(expr: BoolExpr, state: State): Boolean =
+    expr match {
+      case LitBExpr(value) => value
+      case NegBExpr(op) => !evalBExpr(op, state)
+      case DyaBExpr(CondAnd, op1, op2) => evalBExpr(op1, state) && evalBExpr(op2, state)
+      case DyaBExpr(CondOr, op1, op2) => evalBExpr(op1, state) || evalBExpr(op2, state)
+      case RelBExpr(LessEq, aExp1, aExp2) => evalAExpr(aExp1, state) <= evalAExpr(aExp2, state)
+      case RelBExpr(GreaterEq, aExp1, aExp2) => evalAExpr(aExp1, state) >= evalAExpr(aExp2, state)
+    }
+
+  //Arithmetic Expressions
+  def evalAExpr(aExpr: ArithExpr, state: State): Int =
+    aExpr match {
+      case LitAExpr(value) => value
+      case IdAExpr(ident) => state(ident)
+      case DyaAExpr(Times, exp1, exp2) => evalAExpr(exp1, state) * evalAExpr(exp2, state)
+      case DyaAExpr(Div, exp1, exp2) => evalAExpr(exp1, state) / evalAExpr(exp2, state)
+      case DyaAExpr(Mod, exp1, exp2) => evalAExpr(exp1, state) % evalAExpr(exp2, state)
+      case DyaAExpr(Plus, exp1, exp2) => evalAExpr(exp1, state) + evalAExpr(exp2, state)
+      case DyaAExpr(Minus, exp1, exp2) => evalAExpr(exp1, state) - evalAExpr(exp2, state)
+    }
+
+  //Interpreter to interpret different commands
+  def interpret(commands: Command, state: State): State =
+    commands match {
+      case SkipCmd => state
+      case AssiCmd(ident, aExpr) => state(ident) = evalAExpr(aExpr, state); state
+      case CpsCmd(Nil) => state
+      case CpsCmd(x :: xs) => interpret(CpsCmd(xs), interpret(x, state))
+      case WhileCmd(bExpr, command) => if (evalBExpr(bExpr, state)) interpret(command, state) else state
+    }
+}
+\end{lstlisting}
+
+\clearpage

@@ -1,0 +1,138 @@
+\hypertarget{haskell-typeclasses}{%
+\subsection{Haskell Typeclasses}\label{haskell-typeclasses}}
+
+\begin{itemize}
+\tightlist
+\item
+  Equality types:
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+(==) , (/=) :: a -> a -> Bool
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Ordered types (based on Eq):
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+( <) , ( <=) , ( >) , ( >=) :: a -> a -> Bool
+min , max :: a -> a -> a
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Showable types:
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+show :: a -> String
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Readable types:
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+read :: String -> a
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Numeric types:
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+(+) , ( -) , (*) :: a -> a -> a
+negate , abs , signum :: a -> a
+fromInteger :: Integer -> a
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Integral types (somewhat simplified)(Based on Num and Ord)
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+quot , rem , div , mod :: a -> a -> a
+quotRem , divMod :: a -> a -> (a , a )
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  Fractional types (based on Num)
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+(/) :: a -> a -> a
+recip :: a -> a
+fromRational :: Rational -> a
+\end{lstlisting}
+
+\hypertarget{instances-of-these-classes}{%
+\subsubsection{Instances of these
+classes}\label{instances-of-these-classes}}
+
+\begin{itemize}
+\tightlist
+\item
+  Booleans, Characters:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Eq , Ord , Show , Read
+  \end{itemize}
+\item
+  Int, Integer:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Eq , Ord , Show , Read , Num , Integral
+  \end{itemize}
+\item
+  Float, Double:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Eq , Ord , Show , Read , Num , Fractional
+  \end{itemize}
+\item
+  Tuples, Lists:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Eq , Ord , Show , Read
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{examples}{%
+\subsubsection{Examples}\label{examples}}
+
+\begin{lstlisting}[language=Haskell]
+2 ==> Int
+2 + 2 ==> Int
+2 :: Int ==> Int
+2 :: Float ==> Float
+(2 + 2) :: Double ==> Double
+2.0 ==> Fractional p => p
+2.0 :: Int ==> error
+2 + 2.0 ==> Fractional a => a
+(2 :: Int ) + (2 :: Double) ==> error (Couldn't match expected type 'Int' with actual type 'Double')
+(2 :: Int ) + 2 ==> Int
+(2 , 2) ==> (Num a, Num b) => (a, b)
+[2 , 2] ==> Num a => [a]
+[2 , 2.0] ==> Fractional a => [a]
+[2 :: Float , 2 :: Double] ==> error
+\end{lstlisting}

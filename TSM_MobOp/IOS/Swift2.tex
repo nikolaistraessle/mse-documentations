@@ -1,0 +1,576 @@
+
+\hypertarget{classes}{%
+\subsection{Classes}\label{classes}}
+
+\begin{breakbox}
+\boxtitle{Types}
+
+\begin{itemize}
+\tightlist
+\item
+  Classes are reference types
+\item
+  Support single inheritance
+\item
+  Classes have initializers (\textasciitilde{}constructor) and a
+  deinitializer (\textasciitilde{}destructor)
+\end{itemize}
+
+\end{breakbox}
+\columnbreak
+
+
+\begin{breakbox}
+\boxtitle{Initializers}
+
+\begin{lstlisting}[language=swift]
+class Person {
+    let name: String
+    init() { self.name = "<Unknown>" }
+
+    // failable initializers can return nil to indicate that the initialization failed
+    init?(name: String) {
+        guard !name.isEmpty else { return nil }
+        self.name = name
+    }
+}
+
+let p1 = Person()
+print(p1.name) // <Unknown>
+if let p2 = Person(name: "John") {
+    print(p2.name) // John
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Type Methods}
+
+\begin{lstlisting}[language=swift]
+class Cat {
+...
+    static func create(name: String) -> Cat {
+        return Cat(name: name, birthday: Date())
+    }
+}
+
+let simba = Cat.create(name: "Simba")
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Casting}
+
+Static and Dynamic Types
+
+\begin{lstlisting}[language=swift]
+class Animal {}
+class Cat: Animal {}
+class Dog: Animal {}
+
+// static & dynamic: Cat
+let cat1 = Cat()
+// static: Animal, dynamic: Cat
+let cat2: Animal = Cat()
+
+//static: Animal, dynamic: Cat
+let x1 = cat1 as Animal   
+//static: Cat, dynamic: Cat > Force downcast
+let x2 = cat2 as! Cat   
+
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Type Check}
+
+\begin{lstlisting}[language=swift]
+class Animal {}
+class Cat: Animal {}
+class Dog: Animal {}
+
+// static: Animal, dynamic: Dog
+var a: Animal = Dog()     
+if a is Dog {
+    print("It's a dog.")
+}
+
+// static: Animal, dynamic: Cat
+a = Cat()     
+switch a {
+    case is Cat:
+        print("It's a cat.")
+    case is Dog:
+        print("It's a dog.")
+    default:
+        print("It's another kind of animal.")
+}
+\end{lstlisting}
+\end{breakbox}
+
+
+\subsection{Automatic Reference Counting}
+
+\begin{breakbox}
+
+\begin{itemize}
+\tightlist
+\item
+  Swift uses Automatic Reference Counting (ARC) for Memory Management
+\item
+  it's a form of garbage collection
+\end{itemize}
+
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Benefits \& Drawbacks}
+
+\textbf{Benefits}
+\begin{itemize}
+\tightlist
+\item
+  Deterministic Destruction
+\item
+  Better for real time applications where you don't want garbage
+  collection pauses
+\end{itemize}
+
+\textbf{Drawback:}
+\begin{itemize}
+\tightlist
+\item
+  here can be strong reference cycles $\Rightarrow$ Memory Leaks
+\end{itemize}
+\end{breakbox}
+
+\columnbreak
+\begin{breakbox}
+\boxtitle{How it works}
+
+\begin{itemize}
+\tightlist
+\item
+  A reference count is maintained for each class instance
+\item
+  When a new reference points to an instance, the reference count is
+  incremented
+\item
+  When an existing reference goes out of scope or is reassigned to
+  something else, the reference count is decremented
+\item
+  When the reference count reaches 0, the instance is deallocated
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Weak References}
+
+\begin{itemize}
+\tightlist
+\item
+  Weak references don't increment the reference count
+\item
+  The weak keyword is only allowed under the following conditions:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Type must be a class type
+  \item
+    Type must be optional
+  \item
+    Must be a variable, not a let-constant
+  \end{itemize}
+\item
+  If the object that the weak reference points to is deallocated, the
+  weak reference is automatically set to nil
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+class ClassA {
+    weak var b: ClassB?
+    deinit { print("deinit ClassA") }
+}
+\end{lstlisting}
+\end{breakbox}
+
+\subsection{Structs}
+
+\begin{breakbox}
+
+\begin{itemize}
+\tightlist
+\item
+  Structs are value types
+\item
+  Don't support inheritance
+\item
+  Can adopt zero or more protocols
+\item
+  Can be generic
+\item
+  Structs have initializers (\textasciitilde{}constructor) but no
+  deinitializer (\textasciitilde{}destructor)
+\item
+  Int, Double, Bool, String, Array are all implemented with structs
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+struct Person {
+    var name: String
+}
+
+let p1 = Person(name: "Tim")
+// error: cannot reassign a 'let' constant
+p1 = Person(name: "Tom")
+// error: cannot assign to property of 'let'
+p1.name = "Tom"
+// p2 is a mutable copy of p1
+var p2 = p1   
+// works because p2 and name are mutable
+p2.name = "Tom"   
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Mutating Methods}
+
+\begin{itemize}
+\tightlist
+\item
+  Methods that mutate the state of a struct instance must have a
+  mutating modifier
+\item
+  $\Rightarrow$ Can not be called for instances of this struct that are declared
+  with let
+\item
+  Property setters are implicitly mutating
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Copy On Write}
+\begin{itemize}
+\tightlist
+\item
+  If you have two variables of the type MyData, they point to the same
+  var data
+\item
+  Reading methods don't make a copy of this data
+\item
+  As soon as you change the data, it creates an own copy for your
+  instance
+\end{itemize}
+
+\end{breakbox}
+
+\subsection{Enums}
+
+\begin{breakbox}
+
+\begin{itemize}
+\tightlist
+\item
+  Enums are value types
+\item
+  Don't support inheritance
+\item
+  Can adopt zero or more protocols
+\item
+  Can be generic
+\item
+  Enums can have initializers (\textasciitilde{}constructor) but no
+  deinitializer (\textasciitilde{}destructor)
+\item
+  Enum cases can store associated values of any type
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+enum Alignment {
+    case left
+    case center
+    case right
+}
+
+var alignment = Alignment.left
+alignment = .center
+
+switch alignment {
+    case .left:
+        print("left-aligned")
+    case .right:
+        print("right-aligned")
+    case .center:
+        print("centered")
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Associated Values}
+
+\begin{lstlisting}[language=swift]
+enum Result<T> {
+    case success(T)
+    case error(String)
+}
+
+func fetch(_ urlString: String) -> Result<String> {
+    guard let html = try? ... else {
+        return .error(" ")
+    }
+    return .success(html)
+}
+
+let result = fetch("http://example.com")
+switch result {
+    case .success(let html):
+        print(html)
+    case .error(let message):
+        print(message)
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Case Iterable}
+
+
+\begin{lstlisting}[language=swift]
+enum Weekday: CaseIterable {
+    case monday
+    case tuesday
+    ...
+}
+for weekday in Weekday.allCases {
+    print(weekday)
+}
+\end{lstlisting}
+\end{breakbox}
+
+\subsection{Operators}
+
+\begin{breakbox}
+
+\begin{itemize}
+\tightlist
+\item
+  Most operators are defined in the standard library
+\item
+  Exceptions: assignment operator, ternary operator
+\item
+  You can overload existing operators for your own types
+\item
+  You can add new operators
+\item
+  This works for prefix (+AB), postfix (AB+) and infix (A+B) operators
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+struct Vec2D {
+    var x: Int
+    var y: Int
+}
+
+prefix func -(v: Vec2D) -> Vec2D {
+    return Vec2D(x: -v.x, y: -v.y)
+}
+
+let v = Vec2D(x: 1, y: 2)
+print(v)   // Vec2D(x: 1, y: 2)
+print(-v)   // Vec2D(x: -1, y: -2)
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Overloading an existing infix operator}
+
+\begin{lstlisting}[language=swift]
+struct Vec2D {
+    var x: Int
+    var y: Int
+    static func +(lhs: Vec2D, rhs: Vec2D) -> Vec2D {
+        return Vec2D(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+}
+
+let v1 = Vec2D(x: 5, y: 10)
+let v2 = Vec2D(x: 4, y: 2)
+print(v1 + v2) // Vec2D(x: 9, y: 12)
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Precedence (Priority)}
+
+\begin{itemize}
+\tightlist
+\item
+  Postfix > Prefix
+\item
+  Prefix > Infix
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Adding new infix operator}
+
+
+\begin{lstlisting}[language=swift]
+infix operator **: MultiplicationPrecedence   
+//power operator with MultiplicationPrecedence
+
+func **(base: Int, exponent: Int) -> Int {
+    var result = 1
+    for _ in 0..<exponent {
+        result *= base
+    }
+    return result
+}
+
+let result1 = 2 ** 2 ** 3
+assert(result1 == 64)
+\end{lstlisting}
+\end{breakbox}
+
+\columnbreak
+
+\subsection{Protocols}
+\begin{breakbox}
+
+\begin{itemize}
+\tightlist
+\item
+  Similar to Java Interfaces
+\item
+  Classes, Structs and Enums can conform to zero or more protocols
+\item
+  A protocol can require properties, methods, initializers, subscripts
+  or associated types
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Equatable Example}
+
+\begin{lstlisting}[language=swift]
+public protocol Equatable {
+    static func ==(lhs: Self, rhs: Self) -> Bool
+}
+\end{lstlisting}
+Self is the type of the class, which is implementing the protocol
+
+\begin{lstlisting}[language=swift]
+struct Point: Equatable {
+    var x: Int
+    var y: Int
+    static func ==(lhs: Point, rhs: Point) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y
+    }
+}
+\end{lstlisting}
+\end{breakbox}
+
+\subsection{Extensions}
+
+\begin{breakbox}
+\begin{itemize}
+\tightlist
+\item
+  Add a new computed property, initializer, method or subscript to an
+  existing type (class, struct, enum or protocol)
+\item
+  Also used to group related methods (e.g., methods required by the same
+  protocol)
+\item
+  Also works for standard library types such as Int, Double, String,
+  Array, etc.
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+extension Sequence where Element == Int {
+    func average() -> Double {
+        var sum = 0, count = 0
+        for n in self {
+            sum += n
+            count += 1
+        }
+        return Double(sum) / Double(count)
+    }
+}
+
+let array = [1, 2, 3, 4, 5, 6]
+print(array.average()) // 3.5
+let range = 1...6
+print(range.average()) // 3.5
+\end{lstlisting}
+\end{breakbox}
+
+
+\subsection{Protocol-Oriented
+Programming}
+
+\begin{breakbox}
+\boxtitle{Protocol Extension}
+
+\begin{lstlisting}[language=swift]
+protocol Human {
+    var firstName: String { get }
+    var lastName: String { get }
+    var age: Int { get }
+}
+
+extension Human {
+    var fullName: String { return firstName + " " + lastName }
+    func isAdult() -> Bool { return age >= 18 }
+}
+
+struct Person: Human {
+    var firstName: String
+    var lastName: String
+    var age: Int
+}
+
+let p = Person(firstName: "Tim", lastName: "Cook", age: 56)
+print(p.fullName)   // Tim Cook
+print(p.isAdult())   // true
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Collections}
+
+\begin{itemize}
+\tightlist
+\item
+  Collection: A sequence whose elements can be traversed multiple times,
+  nondestructively, and accessed by indexed subscript.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Inherits from Sequence
+  \item
+    Must be finite
+  \end{itemize}
+\item
+  BidirectionalCollection: A collection that supports backward as well
+  as forward traversal.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Inherits from Collection
+  \end{itemize}
+\item
+  RandomAccessCollection: A collection that supports efficient
+  random-access index traversal.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Inherits from BidirectionalCollection
+  \end{itemize}
+\end{itemize}
+\end{breakbox}

@@ -1,0 +1,568 @@
+\hypertarget{scala-traits-eigenschaften}{%
+\section{Scala - Traits (Eigenschaften)}\label{scala-traits-eigenschaften}}
+
+\hypertarget{multiple-inheritance}{%
+\subsection{Multiple Inheritance}\label{multiple-inheritance}}
+
+Multiple inheritance works fine when you combine classes that have
+nothing in common, but there is a conflict if these classes have common
+attributes or methods.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Student { def id: String = ... }
+class Employee { def id: String = ... }
+class MSEPartTimeStudent extends Student, Employee { ... }
+\end{lstlisting}
+
+\hypertarget{problem-of-name-clashes}{%
+\subsubsection{Problem of name clashes}\label{problem-of-name-clashes}}
+
+If you have different methods with the same name, but different meaning,
+you will also have a conflict in Java. C\# is able to solve this by
+defining the class from which the method is derived.\\
+\textit{draw from the cowboy means ``ziehen'' in the meaning of draw his
+revolver.}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/nameClash.png}
+\caption{Name clashes}
+\end{figure}
+
+This is even more complicated if the methods are not abstract, but they
+have content and inherit different different content.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+public interface B {
+    default int getValue() { return 1; }
+}
+public interface C {
+    default int getValue() { return 2; }
+}
+public class D implements B, C {
+    public int getValue() {
+        return C.super.getValue();
+    }
+}
+\end{lstlisting}
+
+To avoid conflicts, the class D needs to override the method
+\texttt{getValue()} and call the method of the mother class.
+
+\clearpage
+\hypertarget{example-in-c}{%
+\subsubsection{Example in C}\label{example-in-c}}
+
+\begin{lstlisting}[language=C++,mathescape=false]
+class A {
+    public: int id;
+    public: A() { id = 0; }
+};
+class B1 : public A {
+    public: B1() { id = 1; }
+};
+class B2 : public A {
+    public: B2() { id = 2; }
+}
+class C : public B1, public B2 {};
+    static int main(void*) {
+    C* c = new C();
+    cout << dynamic_cast<B1*>(c) -> id << endl;
+    cout << dynamic_cast<B2*>(c) -> id << endl;
+    return 0;
+}
+\end{lstlisting}
+
+This example shows the multiple inheritance from C. In C, the full
+content of the classes which I inherit from is copied to the target
+class. So if I inherit from two classes, I have two full content of
+these two classes. With this behaviour, the code above prints 0012
+(because of the dynamic binding).
+
+\hypertarget{java-solution-from-java}{%
+\subsubsection{Java solution from Java}\label{java-solution-from-java}}
+
+\begin{itemize}
+\tightlist
+\item
+  Single implementation inheritance
+\item
+  Multiple interface inheritance
+
+  \begin{itemize}
+  \tightlist
+  \item
+    No solution to the naming problem: If two interfaces introduce
+    methods with the same name and signature but of different return
+    type, then no class can simultaneously implement both interfaces
+  \item
+    Inherited default implementation must be resolved explicitly
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{traits-in-scala}{%
+\subsection{Traits in Scala}\label{traits-in-scala}}
+
+Scala traits provide a mixin composition mechanism that has been missing
+in Java. Roughly speaking, you can think of traits as analogous to Java
+interfaces, but with implementations and fields and dynamic composition.
+
+Traits can be seen as a solution to the
+
+\begin{itemize}
+\tightlist
+\item
+  Diamond problem or
+\item
+  Linearization Problem
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=110px]{figures/diamondProblem.png}
+\caption{Diamond Problem}
+\end{figure}
+
+\begin{itemize}
+\tightlist
+\item
+  Traits encapsulate method and field definitions
+\item
+  Traits can be reused by mixing them into classes
+\item
+  Traits define a type (comparable to a Java interface)
+\item
+  Traits cannot be instantiated, they are abstract, but they can be used
+  in all contexts where other abstract classes appear
+\end{itemize}
+
+\hypertarget{definitions}{%
+\subsubsection{Definitions}\label{definitions}}
+
+\begin{itemize}
+\tightlist
+\item
+  Like class definitions, except that they use the keyword trait
+\item
+  Traits have no constructor parameters and do not support auxiliary
+  constructors
+\item
+  Traits can be extended from other traits or from classes
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/exampleTrait.png}
+\caption{Example Trait}
+\end{figure}
+
+The code word \texttt{with} defines a union type. This means, this is a
+valid type. If you want to have a combination of two types, you don't
+have to create an interface of this two types, you can just use
+\texttt{with}.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class ConsoleLogger extends Logger with Serializable with Cloneable {
+    override def log(msg: String) { println(msg) }
+}
+\end{lstlisting}
+
+\hypertarget{trais-with-implementation}{%
+\paragraph{Trais with implementation}\label{trais-with-implementation}}
+
+Traits can alos have concrete implementations.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait ConsoleLogger {
+    def log(msg: String) { println(msg) }
+}
+class DebitAccount extends Account with ConsoleLogger {
+    def withdraw(amount: Double) {
+        log(s"withdraw($amount) called")
+        balance -= amount
+    }
+    ...
+}
+\end{lstlisting}
+
+This methods can also be overriden.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait ConsoleLogger {
+    def log(msg: String) { println(msg) }
+}
+class DebitAccount extends Account with ConsoleLogger {
+    def withdraw(amount: Double) {
+        log(s"withdraw($amount) called")
+        balance -= amount
+    }
+    override def log(msg: String) {
+        super.log("DebitAccount."+msg)
+    }
+    ...
+}
+\end{lstlisting}
+
+\hypertarget{traits-on-objects}{%
+\paragraph{Traits on objects}\label{traits-on-objects}}
+
+Traits can be added on object at creation time
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait Logger {
+    def log(msg: String) { }
+}
+trait ConsoleLogger extends Logger {
+    override def log(msg: String) { println(msg) }
+}
+class DebitAccount extends Account with Logger {
+    def withdraw(amount: Double) {
+        log(s"withdraw($amount) called")
+        balance -= amount
+    }
+    ...
+}
+
+val a0 = new DebitAccount //Nothing is logged as default logger is used
+val a1 = new DebitAccount with ConsoleLogger //On a1, console logger is used for logging
+val a2 = new DebitAccount with FileLogger //On a2, a file logger is used
+\end{lstlisting}
+
+\hypertarget{extending-interfaces}{%
+\subsubsection{Extending Interfaces}\label{extending-interfaces}}
+
+Traits can have utility methods which depend on a few abstract methods
+which are provided by the class in which the trait is mixed in. Traits
+can also be used to extend the functionality of an interface.
+
+\begin{itemize}
+\tightlist
+\item
+  A class (may be a trait) defines a thin interface which is implemented
+  by concrete extensions
+\item
+  A trait defines additional functionality which may be mixed in
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait Logger {
+    def log(msg: String) // abstract
+    def info(msg: String) { log("INFO: " + msg) }
+    def warn(msg: String) { log("WARN: " + msg) }
+    def error(msg: String) { log("ERROR: " + msg) }
+}
+\end{lstlisting}
+
+\clearpage
+\hypertarget{stackable-modifications}{%
+\subsubsection{Stackable Modifications}\label{stackable-modifications}}
+
+\begin{itemize}
+\tightlist
+\item
+  Traits can be used to modify the behavior, comparable to the decorator
+  design pattern
+\item
+  In contrast to the decorator, traits are mixed in statically and not
+  at run-time
+
+  \begin{itemize}
+  \tightlist
+  \item
+    in a class
+  \item
+    when instances are created
+  \end{itemize}
+\item
+  A particular trait cannot be mixed in several times
+
+  \begin{itemize}
+  \tightlist
+  \item
+    no repeated modifications
+  \end{itemize}
+\item
+  In contrast to the decorator the modified class inherits the types of
+  the unmodified class!
+\item
+  Example
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Timestamp Logger: adds a time stamp
+  \item
+    Short Logger: shortens the messages
+  \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+//Timestamp Logger
+trait TimestampLogger extends Logger {
+    override def log(msg: String) {
+        super.log(s"${new java.util.Date()} $msg")
+    }
+}
+
+//Short Logger
+trait ShortLogger extends Logger {
+    override def log(msg: String) {
+        super.log(if(msg.length <= 15) msg else msg.substring(0,12)+"...")
+    }
+}
+
+scala> val a1 = new DebitAccount with ConsoleLogger with TimestampLogger with ShortLogger
+scala> val a2 = new DebitAccount with ConsoleLogger with ShortLogger with TimestampLogger
+
+scala> a1.withdraw(100)
+Wed Mai 15 22:38:56 CET 2019 withdraw(100...
+scala> a2.withdraw(100)
+Wed Mai 15 2...
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{super.log} invokes the next trait in the trait hierarchy
+\item
+  With traits, super calls are dynamically bound, i.e.~you cannot tell
+  from the source code of a trait which method is invoked by
+  \texttt{super.someMethod}
+\end{itemize}
+
+\clearpage
+\hypertarget{overriding-abstract-methods-in-traits}{%
+\paragraph{Overriding abstract methods in
+traits}\label{overriding-abstract-methods-in-traits}}
+
+\begin{itemize}
+\tightlist
+\item
+  If the method in the base trait is abstract, then the overriding
+  method in a sub-trait has to be declared both abstract and override
+\item
+  Abstract override method provides an implementation based on another
+  implementation (therefore it is abstract)
+\item
+  Such an implementation is abstract as it needs a concrete method in a
+  class or trait where it can be mixed in
+\item
+  Supercall still possible but dynamically resolved (invokes provided
+  implementation)
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+abstract class IntQueue {
+    def get() : Int
+    def put(x: Int)
+}
+class BasicIntQueue extends IntQueue {
+    private val buf = new scala.collection.mutable.ArrayBuffer[Int]
+    def get() = buf.remove(0) // removes first element
+    def put(x: Int) { buf += x } // adds at the end
+}
+
+scala> val q = new BasicIntQueue
+q: BasicIntQueue = BasicIntQueue@1a6601c
+scala> q.put(10); q.put(11);
+scala> q.get
+res1: Int = 10
+
+//Now with the modificator
+trait Doubling extends IntQueue {
+    abstract override def put(x: Int) { super.put(2*x); }
+}
+trait Incr extends IntQueue {
+    abstract override def put(x: Int) { super.put(x+1); }
+}
+
+//First only with Doubling Queue
+scala> val q = new BasicIntQueue with Doubling
+q: BasicIntQueue with Doubling = $anon$1@d5714b
+scala> q.put(10)
+scala> q.get
+res32: Int = 20
+
+//Additonal example on multiple traits
+scala> val q = new BasicIntQueue with Doubling with Incr
+q: BasicIntQueue with Doubling with Incr = $anon$1@3b60efd8
+scala> q.put(10)
+scala> q.get //22
+scala> val q = new BasicIntQueue with Incr with Doubling
+q: BasicIntQueue with Incr with Doubling = $anon$1@61598d13
+scala> q.put(10) 
+scala> q.get //21
+\end{lstlisting}
+
+\clearpage
+\hypertarget{self-types}{%
+\subsubsection{Self Types}\label{self-types}}
+
+\begin{itemize}
+\tightlist
+\item
+  If a trait extends a class C, that class becomes a superclass of any
+  class mixing in the trait
+\item
+  Alternatively one can define the self type to guarantee that the trait
+  is mixed in a particular class
+\item
+  In the trait methods, any methods of the self type can be invoked
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+//Name of the self type is irrelevant, could be named self (or ex or ...)
+trait ExceptionLogger extends Logger {
+    this: Exception =>
+    def log() { log(getMessage()) }
+}
+\end{lstlisting}
+
+\hypertarget{class-linearization}{%
+\subsection{Class Linearization}\label{class-linearization}}
+
+\textit{Leading question: In which order are the traits called?}
+
+When an instance of a class C is created with new C, then the class C
+and all its inherited classes and traits are put in a \textbf{single,
+linear order}.
+
+\begin{itemize}
+\tightlist
+\item
+  The linear order defines the constructor invocation order (from Any to
+  C)
+\item
+  The linear order defines method lookup priorities, i.e.~it defines,
+  which method overrides another method
+\item
+  The linear order defines which method is called on a super call (it is
+  the next in the linear order chain)
+\end{itemize}
+
+\textbf{No diamond problems and each class appears only once!}
+
+\begin{itemize}
+\tightlist
+\item
+  The inheritance relationship on base classes forms in general a DAG
+\item
+  A linearization of this graph is defined as follows:
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/classLinearization.png}
+\caption{Class Linearization}
+\end{figure}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Put the actual type of the instance as the first element
+\item
+  Starting with the rightmost parent type and working from right to
+  left, compute the linearization of each type, appending its
+  linearization to the cumulative linearization
+\item
+  Working from left to right, remove any type if it appears again to the
+  right of the current position
+\item
+  Append AnyRef and Any
+\end{enumerate}
+
+\hypertarget{example}{%
+\subsubsection{Example}\label{example}}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/classLinearizationExample.png}
+\caption{Class Linearization Example}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/classLinearization2.png}
+\caption{Class Linearization Example}
+\end{figure}
+
+\hypertarget{super-call-to-specific-class}{%
+\subsubsection{Super Call to specific
+class}\label{super-call-to-specific-class}}
+
+\begin{itemize}
+\tightlist
+\item
+  Scala allows to qualify the super call
+\item
+  Qualification can't refer to a grandparent type, only directly
+  inherited classes and traits (in the direction of right)
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+super[T2].print
+\end{lstlisting}
+
+\clearpage
+\hypertarget{applications}{%
+\subsection{Applications}\label{applications}}
+
+\begin{itemize}
+\tightlist
+\item
+  Interfaces
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Traits are used to mimic Java interfaces
+  \end{itemize}
+\item
+  Abstract Classes
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Traits are used to mimic abstract classes known in Java (or Java-
+    Interfaces with default methods)
+  \end{itemize}
+\item
+  Widening thin interfaces to rich ones
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Default methods are added in a trait and can be mixed in a class
+    which implements the abstract (thin) layer
+  \end{itemize}
+\item
+  Defining stackable modifications
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Several traits extending (or restricting themselves) to a common
+    base class are stacked (or chained) in different orders to modify
+    the behavior
+  \item
+    Decorator pattern
+
+    \begin{itemize}
+    \tightlist
+    \item
+      But traits can only be applied statically at compile time
+    \item
+      On the other hand type of decorated object is preserved
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{compound-types}{%
+\subsubsection{Compound Types}\label{compound-types}}
+
+If I have two different traits or types, I can combine them using
+\texttt{with}. These types are union types and define a new type. The
+combined types don't need to know each other.
+
+\clearpage

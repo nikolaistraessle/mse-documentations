@@ -1,0 +1,110 @@
+\hypertarget{haskell}{%
+\section{Haskell - List Comprehensions}\label{haskell}}
+
+In Haskell, a comprehension notation can be used to construct new lists
+from old lists.
+
+\begin{lstlisting}[language=Haskell]
+ghci> [x*2 | x <- [1..10], x*2 >= 12]  
+[12,14,16,18,20]
+
+boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
+ghci> boomBangs [5..15]
+["BOOM!","BOOM!","BOOM!","BANG!","BANG!","BANG!"]
+
+[(x,y) | y <- [4,5], x <- [1,2,3]]
+[(1,4),(2,4),(3,4),(1,5),(2,5),(3,5)]
+
+ghci> let nouns = ["hobo","frog","pope"]  
+ghci> let adjectives = ["lazy","grouchy","scheming"]  
+ghci> [adjective ++ " " ++ noun | adjective <- adjectives, noun <- nouns]  
+["lazy hobo","lazy frog","lazy pope","grouchy hobo","grouchy frog","grouchy pope","scheming hobo","scheming frog","scheming pope"]   
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  The expression x ← {[}1..5{]} is called a generator, as it states how
+  to generate values for x
+\item
+  Comprehensions can have multiple generators, separated by commas
+\item
+  Changing the order of the generators changes the order of the elements
+  in the final list
+\item
+  Multiple generators are like nested loops, with later generators as
+  more deeply nested loops whose variables change value more frequently
+\end{itemize}
+
+\hypertarget{dependant-generators}{%
+\subsubsection{Dependant Generators}\label{dependant-generators}}
+
+Later generators can depend on the variables that are introduced by
+earlier generators. Using a dependant generator we can define the
+library function that concatenates a list of lists.
+
+\begin{lstlisting}[language=Haskell]
+concat :: [[a]] -> [a]
+concat xss = [x | xs <- xss, x <- xs]
+
+concat [[1,2,3],[4,5],[6]]
+[1,2,3,4,5,6]
+\end{lstlisting}
+
+\hypertarget{guards}{%
+\subsubsection{Guards (Predicates)}\label{guards}}
+
+List comprehensions can use guards to restrict the values produced by
+earlier generators.
+
+\begin{lstlisting}[language=Haskell]
+ghci> [x | x <- [1..10], even x]
+[2,4,6,8,10]
+
+--Multiple predicates are seperated by comma
+ghci> [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]  
+[10,11,12,14,16,17,18,20] 
+\end{lstlisting}
+
+\hypertarget{the-zip-function}{%
+\subsection{The Zip Function}\label{the-zip-function}}
+
+A useful library function is zip, which maps two lists to a list of
+pairs of their corresponding elements.
+
+\begin{lstlisting}[language=Haskell]
+zip :: [a] -> [b] -> [(a,b)]
+> zip ['a','b','c'] [1,2,3,4]
+[('a',1),('b',2),('c',3)]
+\end{lstlisting}
+
+\clearpage
+\hypertarget{string-comprehensions}{%
+\subsection{String Comprehensions}\label{string-comprehensions}}
+
+\begin{itemize}
+\tightlist
+\item
+  A string is a sequence of characters enclosed in double quotes.
+  Internally, however, strings are represented as lists of characters.
+\item
+  Because strings are just special kinds of lists, any polymorphic
+  function that operates on lists can also be applied to strings.
+\item
+  Similarly, list comprehensions can also be used to define functions on
+  strings, such counting how many times a character occurs in a string:
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+count :: Char -> String -> Int
+count x xs = length [x' | x' <- xs, x == x']
+
+--Own version of length
+length' xs = sum [1 | _ <- xs]   
+
+removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']] 
+ghci> removeNonUppercase "Hahaha! Ahahaha!"  
+"HA"
+\end{lstlisting}
+
+\clearpage

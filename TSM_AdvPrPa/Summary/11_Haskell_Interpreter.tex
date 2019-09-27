@@ -1,0 +1,86 @@
+\hypertarget{haskell}{%
+\section{Haskell - Interpreter}\label{haskell}}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+TODO: Ich verstehe nicht ganz, was der Interpeter mit Haskell zu tun hat bzw. für was wir das gemacht haben.
+\end{tcolorbox}
+
+\hypertarget{abstract-operator}{%
+\subsection{Abstract Operator}\label{abstract-operator}}
+
+Instead of using expressions directly, one can replace them with
+abstract syntax. For instance instead of using arithmetic operators, one
+can define a data type `ArithOperator'.
+
+\begin{lstlisting}[language=Haskell]
+type Ident = String
+
+data ArithOperator
+= Times
+| Div
+| Mod
+| Plus
+| Minus
+deriving (Eq, Show)
+
+data ArithExpr
+= LitAExpr Int
+| IdAExpr Ident
+| DyaAExpr ArithOperator ArithExpr ArithExpr
+
+evalAOpr :: ArithOperator -> (Value -> Value -> Value)
+evalAOpr Times = (*)
+evalAOpr Div = div
+evalAOpr Mod = mod
+evalAOpr Plus = (+)
+evalAOpr Minus = (-)
+
+testExp1 = DyaAExpr Plus (LitAExpr 1) (DyaAExpr Times (LitAExpr 2) (LitAExpr 3))
+\end{lstlisting}
+
+\hypertarget{concrete-versus-abstract-syntax}{%
+\subsubsection{Concrete Versus Abstract
+Syntax}\label{concrete-versus-abstract-syntax}}
+
+\begin{itemize}
+\tightlist
+\item
+  Concrete syntax is easier to read for humans
+\item
+  Abstract syntax is easier to process for machines
+\end{itemize}
+
+\hypertarget{semantic-values}{%
+\subsection{Semantic values}\label{semantic-values}}
+
+\begin{lstlisting}[language=Haskell]
+type State = Ident -> Value
+\end{lstlisting}
+
+\begin{itemize}
+\tightlist
+\item
+  a state is modelled as a function mapping identifiers to values
+\item
+  example: the function s0 mapping ``x'' to 5, ``y'' to 7, ``z'' to 9,
+  and everything else to 42 (or to an error)
+\end{itemize}
+
+\clearpage
+\hypertarget{updates}{%
+\subsubsection{updateS}\label{updates}}
+
+\begin{lstlisting}[language=Haskell]
+readS :: State -> Ident -> Value
+readS s ident = s ident
+
+updateS :: State -> (Ident, Value) -> State
+updateS s (ident, val) ident'
+| ident' == ident = val
+| otherwise = s ident'
+\end{lstlisting}
+
+updateS s0 (``y'', 17) yields the function s1 mapping ``x'' to 5, ``y''
+to 17, ``z'' to 9, and everything else to 42 (or to an error)
+
+\clearpage

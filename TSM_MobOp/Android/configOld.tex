@@ -1,0 +1,158 @@
+\documentclass[a4paper,landscape,5pt]{scrartcl}
+
+%\documentclass[a4paper, 10pt, fleqn]{article}
+%twoside
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[ngerman]{babel}
+\usepackage[nottoc]{tocbibind}
+\usepackage{enumerate}
+%\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{lastpage}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{placeins}
+\usepackage{color,soul}
+\usepackage{verbatim}
+\usepackage{pdflscape}
+\usepackage{wrapfig}
+\usepackage{paralist}
+\usepackage{multicol}
+\usepackage{tabu}
+\usepackage{tocloft}
+\usepackage{soul}
+\usepackage[most]{tcolorbox}
+\usepackage{ulem}
+\usepackage{fancyhdr}
+\usepackage{inconsolata}
+\usepackage{boites}
+\usepackage{pgf}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{helvet}
+
+
+\usepackage{helvet}
+
+
+
+\hypersetup{
+    colorlinks,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=black
+}
+
+
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+\lstset{language=Java,
+  frame=single,
+  numbers=left,                    
+  numbersep=5pt,
+  numberstyle=\tiny\color{gray},
+  rulecolor=\color{black},
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  tabsize=1,
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\linespread{1}\ttfamily\footnotesize
+}
+
+\lstdefinelanguage{swift}
+{
+  morekeywords={
+    func,if,then,else,for,in,while,do,switch,case,default,where,break,continue,fallthrough,return,
+    typealias,struct,class,enum,protocol,var,func,let,get,set,willSet,didSet,inout,init,deinit,extension,
+    subscript,prefix,operator,infix,postfix,precedence,associativity,left,right,none,convenience,dynamic,
+    final,lazy,mutating,nonmutating,optional,override,required,static,unowned,safe,weak,internal,
+    private,public,is,as,self,unsafe,dynamicType,true,false,nil,Type,Protocol,
+  },
+  morecomment=[l]{//}, % l is for line comment
+  morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+  morestring=[b]" % defines that strings are enclosed in double quotes
+}
+
+% Einrücken zu Beginn von neuem Absatz unterdrücken
+\setlength{\parindent}{0pt}
+
+% multicol config
+\usepackage{multicol}
+\setlength\columnsep{1pt}
+
+% enumeration and itemize config
+\usepackage{enumitem}
+\setlist{nolistsep,leftmargin=*}
+
+% change title size, color and spacing
+\usepackage{titlesec}
+\titleformat*{\section}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subsection}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subsubsection}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\paragraph}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subparagraph}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+
+% Zeilenabstand einstellen
+\usepackage{setspace}
+\makeatletter
+\newcommand{\MSonehalfspacing}{%
+  \setstretch{1.44}%  default
+  \ifcase \@ptsize \relax % 10pt
+    \setstretch {1.448}%
+  \or % 11pt
+    \setstretch {1.399}%
+  \or % 12pt
+    \setstretch {1.433}%
+  \fi
+}
+\newcommand{\MSdoublespacing}{%
+  \setstretch {1.92}%  default
+  \ifcase \@ptsize \relax % 10pt
+    \setstretch {1.936}%
+  \or % 11ptEB
+    \setstretch {1.866}%
+  \or % 12pt
+    \setstretch {1.902}%
+  \fi
+}
+\titlespacing*{\section}
+{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}
+{0pt}{0pt}{0pt}
+
+% remove indent of new paragraphs
+\setlength\parindent{0pt}
+
+% configure indents of breakboxes
+\def\breakboxparindent{0pt}
+\def\breakboxskip{1pt}
+
+% remove page numbering
+\pagenumbering{gobble}
+
+\newcommand{\boxtitle}[1]{\textcolor{Plum}{\textbf{#1}}}
+
+\def\breakboxparindent{0pt}
+\def\breakboxskip{1pt}
+
+\makeatother
+\MSonehalfspacing
+
+\newcommand\tightlist

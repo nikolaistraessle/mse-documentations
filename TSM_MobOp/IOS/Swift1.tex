@@ -1,0 +1,342 @@
+\section{Swift}
+
+\begin{breakbox}
+\begin{itemize}
+\tightlist
+\item
+  Safety (e.g., Optionals, Definitive Initialization, etc)
+\item
+  Readability
+\item
+  Progressive Disclosure
+\item
+  Interoperability with Objective-C
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Types}
+
+\begin{itemize}
+\tightlist
+\item
+  The following types are declared in the Swift Standard Library:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Int, Float, Double
+  \item
+    Bool
+  \item
+    String
+  \item
+    Array, Set, Dictionary\textless{}K, V\textgreater{}
+  \end{itemize}
+\item
+  All of these types have value semantics (Wenn man z.B. eine Variable
+  hat und man weist sie einer anderen Variable zu, dann ist das eine
+  Kopie)
+\item
+  Some of these types use copy-on-write in order to be efficient
+\item
+  They are nominal types $\Rightarrow$ can be extended
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{let}
+
+\textit{let hat definierte Standard-Typen, die verwendet werden wenn man
+ein let initialisiert. Für Floating-Point Zahlen ist dies z.B. double.
+Bei der Zuweisung lässt sich jedoch der Wert casten.}
+
+\begin{lstlisting}[language=swift]
+let c: Float = 4.5
+print(type(of: c)) // changes the default type to float instead of double
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Arrays}
+
+\begin{lstlisting}[language=swift]
+let ints1 = [1, 2, 3]
+let strs = Array(repeating: "Hi", count: 5) // Array<String> / [String]
+for s in strs { print(s) }
+for (i, s) in strs.enumerated() {   // enumerated() returns a sequence
+    print(i, s)                     // of (Int, String) tuples
+}
+print(arr.first)            //Optional(1)
+print(arr.last)             //Optional(5)
+print(arr.prefix(3))        //erste drei [1, 2, 3]
+print(arr.dropFirst())      //[2, 3, 4, 5]
+print(arr.randomElement())
+print(arr.shuffled())
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Dictionaries}
+
+\begin{lstlisting}[language=swift]
+let populationCounts = ["Switzerland": 8_081_000,
+                        "Germany": 80_620_000,
+                        "France": 66_030_000]
+
+for (country, count) in populationCounts {
+    print("\(country): \(count) people")
+}
+
+print(populationCounts["Switzerland"])  // Optional(8081000)
+
+ageMap["John"] = nil    //removes an existing entry
+
+for c in "test" {
+    //Falls Eintrag nicht vorhanden, 0 hineinschreiben und direkt inkrementieren. Keine Ueberpruefung
+    characterCounts[c, default: 0] += 1
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Tuples}
+
+\begin{itemize}
+\tightlist
+\item
+  Group multiple values into a single compound value
+\item
+  There are no single-element tuples
+\item
+  The empty tuple () is a valid type
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+let john = (33, "John")
+print("(john.1) is (john.0).")
+
+let dora1 = (age: 26, name: "Dora1")
+print("(dora1.name) is (dora1.age).")
+\end{lstlisting}
+\end{breakbox}
+
+\columnbreak
+\begin{breakbox}
+\boxtitle{Funktionstypen}
+
+\begin{itemize}
+\tightlist
+\item
+  Examples of function types:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    (Int) -> Int $\Rightarrow$ takes an Int and returns an Int
+  \item
+    (String, Double) -> () $\Rightarrow$ takes a String and a Double
+    and returns nothing
+  \item
+    () -> (Int, Int) $\Rightarrow$ takes no arguments and returns a
+    pair of Ints
+  \end{itemize}
+\item
+  Parentheses around argument types are always required. Return type
+  should only have parentheses if you are returning a tuple
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+func f1() {}
+func f2(_ x: Int) -> Int { return x }
+func f3(_ x: Int, _ y: Int) {}
+func f4() -> (Int, Int) { return (0, 0) }
+\end{lstlisting}
+\end{breakbox}
+
+\subsection{Statements}
+
+\begin{breakbox}
+\boxtitle{If Statement}
+
+Die runden Klammern sind nicht unbedingt nötig, aber die geschweiften
+schon! Es ist möglich, mehrere Statements mit einem Komma zu verknüpfen
+(automatisch AND).
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Switch Statement}
+
+
+\begin{lstlisting}[language=swift]
+//Kein Break
+//Unterstuetzt pattern matching
+
+let peopleCount = 42
+switch peopleCount {
+    case 0:
+        print("no people")
+    default:
+        print("lots of people")
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Loop Statements}
+
+\begin{lstlisting}
+for n in numbers {
+    print(n)
+}
+
+//prints only the even numbers
+for n in numbers where n % 2 == 0 {
+    print(n)
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Guard, Defer \& Error Handling}
+
+\begin{lstlisting}[language=swift]
+enum FileError: Error {
+    case notFound
+    case unknownEncoding
+}
+
+func readFile(at path: String) throws -> String {
+    guard let file = FileHandle(forReadingAtPath: path) else { throw FileError.notFound }
+    defer { file.closeFile() }
+    let data = file.readDataToEndOfFile()
+    guard let content = String(data: data, encoding: .utf8) else { throw FileError.unknownEncoding }
+    return content
+}
+
+do {
+    let content = try readFile(at: "/path/to/file.txt")
+    print(content)
+}
+catch FileError.notFound { print("Error: File not found") }
+catch FileError.unknownEncoding { print("Error: Unknown encoding") }
+\end{lstlisting}
+
+\textbf{Optional try:}
+\begin{lstlisting}[language=swift]
+//Liefert ein Optional und ist nil, wenn ein Fehler geworfen wird.
+let content = try? readFile(at: "/path/to/file.txt")
+\end{lstlisting}
+\end{breakbox}
+
+\subsection{Functions}
+
+\begin{breakbox}
+\begin{itemize}
+\tightlist
+\item
+  Free functions are supported (e.g., min() and max() are free
+  functions)
+\item
+  Parameters have an internal and an external name
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+//person ist intern und extern derselbe Name
+//from ist der externe Name, intern heisst dies hometown
+func greet(person: String, from hometown: String) {
+    print("Hello, \(person) from \(hometown)!")
+}
+
+//Mit '_' wird der externe Name komplett unterdrueckt.
+func square(_ n: Int) -> Int {
+    return n * n
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Higher-Order Functions}
+
+Higher-Order Functions are functions, that take a function as an argument or return a function.
+\begin{lstlisting}[language=swift]
+func makeMultiplier(factor: Int) -> (Int) -> Int {
+    func multiplier(n: Int) -> Int {
+        return factor * n
+    }
+    return multiplier
+}
+
+let multiplyByTwo = makeMultiplier(factor: 2)
+let multiplyByFive = makeMultiplier(factor: 5)
+let numbers = [1, 2, 3, 4, 5]
+print(numbers.map(multiplyByTwo))   // [2, 4, 6, 8, 10]
+print(numbers.map(multiplyByFive))  // [5, 10, 15, 20, 25]
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Generic Functions}
+
+\begin{lstlisting}[language=swift]
+//Wir sagen, dass die Parameter Comparable sein muessen.
+func _min<T : Comparable>(_ x: T, _ y: T) -> T {
+    return y < x ? y : x
+}
+print(_min(1, 2))// 1
+print(_min("hello", "hallo")) //"hallo"
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Inout Parameters}
+
+1. When the function is called,
+the value of the argument is copied. 2. In the body of the function, the
+copy is modified. 3. When the function returns, the copy's value is
+assigned to the original argument.
+
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Closures}
+
+\begin{itemize}
+\tightlist
+\item
+  Closures are expressions
+\item
+  Anonymous functions
+\end{itemize}
+
+\begin{lstlisting}[language=swift]
+let numbers = [1, 2, 3, 4, 5]
+let squaredNumbers = numbers.map({ (n: Int) -> Int in
+    return n * n
+})
+print(squaredNumbers)       // [1, 4, 9, 16, 25]
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Closure Capturing}
+
+\begin{lstlisting}[language=swift]
+func makeCounter() -> () -> Int {
+    var count = 0
+    return {
+    // local variable 'count' is captured by closure
+        count += 1
+        return count
+    }
+}
+
+let c1 = makeCounter()
+let c2 = makeCounter()
+print(c1())  //1
+print(c1())  //2
+print(c2())  //1
+print(c1())  //3
+\end{lstlisting}
+\end{breakbox}
+

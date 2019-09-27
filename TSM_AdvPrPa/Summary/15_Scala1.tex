@@ -1,0 +1,727 @@
+\hypertarget{scala}{%
+\section{Scala - Introduction}\label{scala}}
+
+\begin{itemize}
+\tightlist
+\item
+  Multi-paradigm Programming
+
+  \begin{itemize}
+  \tightlist
+  \item
+    A multi-paradigm programming language provides ``a framework in
+    which programmers can work in a variety of styles, freely
+    intermixing constructs from different paradigms.''
+  \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scalaOverview.png}
+\caption{Scala Overview}
+\end{figure}
+
+Scala is
+
+\begin{itemize}
+\tightlist
+\item
+  Object-Oriented
+\item
+  Functional
+\item
+  Safe and performant, with strong static typing
+\item
+  Agile, with lightweight syntax
+\item
+  Scalable
+\item
+  Extensible
+\end{itemize}
+
+\clearpage
+\hypertarget{scala-advantages-over-java}{%
+\subsection{Scala Advantages over
+Java}\label{scala-advantages-over-java}}
+
+\begin{itemize}
+\tightlist
+\item
+  In Scala functions are first class and can be passed around
+
+  \begin{itemize}
+  \tightlist
+  \item
+    This encourages functional programming with all its advantages
+    (=\textgreater{} Java8)
+  \end{itemize}
+\item
+  In Scala all values are objects (pure object-oriented)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The compiler turns them into primitives, so no efficiency is lost
+  \end{itemize}
+\item
+  In Scala operators are just methods
+
+  \begin{itemize}
+  \tightlist
+  \item
+    a * b \textless{}-\textgreater{} a.*(b)
+  \end{itemize}
+\item
+  Scala is statically typed (as Java) but uses type inference
+
+  \begin{itemize}
+  \tightlist
+  \item
+    val m = HashMap{[}String,List{[}String{]}{]}()(=\textgreater{}
+    Java10 var)
+  \end{itemize}
+\item
+  Scala supports the principle of uniform access
+
+  \begin{itemize}
+  \tightlist
+  \item
+    A field defined as attribute or as method is accessed uniformly
+  \end{itemize}
+\item
+  Scala supports concurrency
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Actor Library for coarse-grained concurrency
+  \item
+    Immutable data structures =\textgreater{} avoids race conditions
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{getting-started}{%
+\subsection{Getting started}\label{getting-started}}
+
+\hypertarget{compiling}{%
+\subsubsection{Compiling}\label{compiling}}
+
+\begin{lstlisting}[language=scala]
+>scalac HelloWorld.scala
+
+>scala HelloWorld
+Hello world!
+>scala -cp . HelloWorld
+Hello world!
+\end{lstlisting}
+
+\hypertarget{scala-code-may-use-any-java-class}{%
+\subsubsection{Scala Code may use any Java
+class}\label{scala-code-may-use-any-java-class}}
+
+\begin{lstlisting}[language=scala]
+import javax.swing._
+import java.awt._
+
+object SampleGUI {
+    def main(args: Array[String]) {
+        val f = new JFrame("Title")
+        f.setLayout(new FlowLayout())
+        f.add(new JLabel("text"))
+        f.add(new JButton("OK"))
+        f.pack
+        f.setVisible(true)
+    }
+}
+\end{lstlisting}
+
+\hypertarget{types}{%
+\subsection{Types}\label{types}}
+
+\begin{itemize}
+\tightlist
+\item
+  Byte, Short, Int, Long, Float, Double
+
+  \begin{itemize}
+  \tightlist
+  \item
+    have methods
+  \item
+    Operators are method calls
+  \item
+    Assignment compatibility: Byte -\textgreater{} Short -\textgreater{}
+    Int -\textgreater{} Long -\textgreater{} Float -\textgreater{}
+    Double
+  \end{itemize}
+\item
+  Char
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Assignment compatibility: Char -\textgreater{} Int
+  \end{itemize}
+\item
+  Boolean
+\item
+  String
+
+  \begin{itemize}
+  \tightlist
+  \item
+    More methods as in Java:
+  \item
+    String interpolation
+  \item
+    Multiline Strings
+  \end{itemize}
+\item
+  Unit
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scalaTypes.png}
+\caption{Scala Types}
+\end{figure}
+
+\clearpage
+\begin{itemize}
+\tightlist
+\item
+  Unit
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Corresponds to \textbf{void in Java}, is used as result type for
+    ``procedures''
+  \item
+    Unit type has only one value: ()
+  \end{itemize}
+\item
+  Null
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Subtype of all reference types
+  \item
+    Its only instance is null
+  \end{itemize}
+\item
+  Nothing
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Bottom type, is a subtype of all types
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{lists}{%
+\subsubsection{Lists}\label{lists}}
+
+\begin{itemize}
+\tightlist
+\item
+  Lists are concrete classes, no interfaces
+\item
+  A list is implemented as linked list and may contain an arbitrary
+  number of elements
+\item
+  \textbf{Lists are immutable} (mutable variants exist)
+\item
+  The datatypes are automatically recognized
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+scala> val list = List("Hello", "World", "!")
+list: List[java.lang.String] = List(Hello, World, !)
+scala> list.head
+res1: java.lang.String = Hello
+scala> list.tail
+res2: List[java.lang.String] = List(World, !)
+scala> list(2)
+res3: java.lang.String = !
+scala> 1 :: 2 :: 3 :: Nil
+res4: List[Int] = List(1, 2, 3)
+\end{lstlisting}
+
+\hypertarget{maps}{%
+\subsubsection{Maps}\label{maps}}
+
+\begin{itemize}
+\tightlist
+\item
+  Map contains pairs
+\item
+  \textbf{Immutable} (mutable variants exist)
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+scala> var m = Map("Romeo" -> 22, ("Julia", 21))
+m: scala.collection.immutable.Map[String,Int] = Map(Romeo -> 22, Julia -> 21)
+scala> m("Romeo")
+res1: Int = 22
+scala> m = m.updated("Romeo", 25)
+m: scala.collection.immutable.Map[String,Int] = Map(Romeo -> 25, Julia -> 21)
+scala> m += ("Meier" -> 33)
+scala> m
+res2: scala.collection.immutable.Map[String,Int] = Map(Romeo -> 25, Julia -> 21, Meier -> 33)
+\end{lstlisting}
+
+\hypertarget{variables}{%
+\subsubsection{Variables}\label{variables}}
+
+\begin{itemize}
+\tightlist
+\item
+  val
+
+  \begin{itemize}
+  \tightlist
+  \item
+    value, cannot be changed (corresponds to Java's final)
+  \end{itemize}
+\item
+  var
+
+  \begin{itemize}
+  \tightlist
+  \item
+    variable, can be reassigned
+  \end{itemize}
+\item
+  Type declaration is optional upon definition
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+scala> val age = 3
+age: Int = 3
+scala> age = 4 //error: reassignment to val
+scala> var age = 34
+age: Int = 34
+scala> age = 35
+age: Int = 35
+\end{lstlisting}
+
+\hypertarget{control-expressions}{%
+\subsection{Control Expressions}\label{control-expressions}}
+
+\hypertarget{if}{%
+\subsubsection{If}\label{if}}
+
+\begin{itemize}
+\tightlist
+\item
+  ``if'' ``('' BooleanExpr ``)'' Expr {[}``else'' Expr{]}
+\item
+  If-expression returns a result (and has a type!)
+\item
+  No ternary ``cond ? expr1 : expr2'' operator in Scala
+\item
+  Expr may be a block expressions
+\item
+  Type of if expression is ``greatest common base type'' (may be Any)
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+scala> val (a,b) = (1,2)
+a: Int = 1
+b: Int = 2
+scala> val max = if(a > b) a else {b}
+max: Int = 2
+\end{lstlisting}
+
+\hypertarget{loop}{%
+\subsubsection{Loop}\label{loop}}
+
+\begin{itemize}
+\tightlist
+\item
+  ``while'' ``('' BooleanExpr ``)'' Expr
+
+  \begin{itemize}
+  \tightlist
+  \item
+    is an expression of type Unit
+  \end{itemize}
+\item
+  ``do'' Expr while ``('' BooleanExpr ``)''
+
+  \begin{itemize}
+  \tightlist
+  \item
+    is an expression of type Unit
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{for}{%
+\subsubsection{For}\label{for}}
+
+\begin{itemize}
+\tightlist
+\item
+  ``for'' ``('' Generators``)'' {[}``yield''{]} Expr
+\item
+  without yield: is an expression of type Unit
+\item
+  with yield: is an expression of the type of the first Generator
+  (approx.)
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+scala> for(i <- 1 to 4) { print(" " + i) }
+1 2 3 4
+scala> for(i <- List(1,2)) { println(i) }
+1
+2
+scala> val q = for(i <- 1 to 10 if i%2==0) yield (i*i)
+q: scala.collection.immutable.IndexedSeq[Int] = Vector(4, 16, 36, 64, 100)
+scala> for(i <-1 to 8 by 2; j <- 1 until i) print(i,j)
+(3,1)(3,2)(5,1)(5,2)(5,3)(5,4)(7,1)(7,2)(7,3)(7,4)(7,5)(7,6)
+\end{lstlisting}
+
+\hypertarget{classes}{%
+\subsection{Classes}\label{classes}}
+
+\begin{itemize}
+\tightlist
+\item
+  Object model of Scala is similar to Java's one
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Abstract and final classes
+  \item
+    Single inheritance of classes
+  \item
+    Classes may be nested
+  \end{itemize}
+\item
+  Members
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Values (var / val)
+  \item
+    Methods (def)
+  \item
+    Types (type)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      In an abstract class, all these members may be abstract (also
+      types)!
+    \item
+      Default visibility is public
+    \end{itemize}
+  \end{itemize}
+\item
+  Every class has a primary constructor which is always called
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Auxiliary constructors may be defined
+  \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+class CreditCard(val number: Int, var limit: Int) {
+    def this(number: Int) = this(number, 1000) // aux constrctor
+    println("new card created") // executed in primary constructor
+    private var sum = 0
+    def buy(amount: Int) {
+        if(sum + amount > limit) throw new RuntimeException
+        sum += amount
+    }
+    def remainder = limit-sum // method which does not take parameters
+}
+\end{lstlisting}
+
+\hypertarget{methods}{%
+\subsubsection{Methods}\label{methods}}
+
+\begin{itemize}
+\tightlist
+\item
+  ``def'' id ``('' ParameterList ``)'' {[}``:'' Type{]} = Expr
+\item
+  Expr may be a single expression or a block expression
+\item
+  Result of method call is
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Value of expression or
+  \item
+    Value of argument of a return statement
+  \end{itemize}
+\item
+  If block contains a return statement, then result type must be
+  specified
+\item
+  If method is defined recursively, then result type must be specified
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+def add(x: Int, y: Int): Int = {return x+y}
+def add(x: Int, y: Int): Int = return x+y
+def add(x: Int, y: Int) = x + y
+def add(x: Int, y: Int) = { val z = x; z+y }
+
+def max(x: Int, y: Int) = if(x>y) x else y
+def fact(x: Int): Int = if(x==0) 1 else x * fact(x-1)
+\end{lstlisting}
+
+Parameters may have default values
+
+\begin{lstlisting}[language=scala]
+def add(m: Int, n: Int = 1) = m + n
+\end{lstlisting}
+
+Parameter may be called by name; named args must follow positional args
+
+\begin{lstlisting}[language=scala]
+scala> quorem(n = 2, m = 4)
+res1: (Int, Int) = (2,0)
+\end{lstlisting}
+
+Parameter lists may be separated (curried)
+
+\begin{lstlisting}[language=scala]
+def add(m: Int)(n: Int) = m+n
+\end{lstlisting}
+
+\hypertarget{inheritance}{%
+\subsubsection{Inheritance}\label{inheritance}}
+
+\begin{lstlisting}[language=scala]
+abstract class Base(param: String) {
+    def doSomething: String // without body abstract
+    val value = param.toInt
+    override def toString() = { "^" + super.toString() }
+}
+
+class Derived extends Base("0") {
+    def doSomething = "working" // override may be added
+    override val value = 20
+}
+\end{lstlisting}
+
+\clearpage
+\hypertarget{singleton-objects}{%
+\subsubsection{Singleton Objects}\label{singleton-objects}}
+
+The expression \texttt{object} defines automatically a singleton object,
+which could be called under it's name.
+
+\begin{lstlisting}[language=scala]
+class Color(val r: Int, val g: Int, val b: Int)
+
+object ColorFactory {
+    private val cols = Map(
+        "red" -> new Color(255,0,0),
+        "blue" -> new Color(0,0,255),
+        "green" -> new Color(0,255,0))
+    def getColor(color: String) =
+        if(cols contains color) cols(color) else null
+}
+
+scala> ColorFactory.getColor("red")
+res0: Color = Color@1e3d24a
+scala> ColorFactory.getColor("pink")
+res1: Color = null
+\end{lstlisting}
+
+\hypertarget{companion-objects}{%
+\subsubsection{Companion Objects}\label{companion-objects}}
+
+\begin{itemize}
+\tightlist
+\item
+  Classes and companion objects have no boundaries, they can access the
+  private fields and methods of each other
+\item
+  In the below example the constructor of Color is private, i.e.~new
+  instances can only be accessed using method getColor
+\end{itemize}
+
+\begin{lstlisting}[language=scala]
+class Color private (val r: Int, val g: Int, val b: Int)
+
+object Color {
+    private val cols = Map(
+        "red" -> new Color(255,0,0),
+        "blue" -> new Color(0,0,255),
+        "green" -> new Color(0,255,0))
+
+    def getColor(color: String) = if(cols contains color) cols(color) else null
+
+    def apply(color: String) = if(cols contains color) cols(color) else null
+}
+
+scala> Color("red")
+res0: Color = Color@1623820
+scala> Color("pink")
+res1: Color = null
+\end{lstlisting}
+
+\clearpage
+\hypertarget{functions}{%
+\subsection{Functions}\label{functions}}
+
+Functions are first-class citizens
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> val add = (m: Int, n: Int) => m+n
+add: (Int, Int) => Int = $$Lambda$1012/2143233788@4962b41e
+
+scala> add(2,3)
+res0: Int = 5
+\end{lstlisting}
+
+Functions are instances of class FunctionX
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> val add = (m: Int, n: Int) => m + n
+add: (Int, Int) => Int = $$Lambda$1022/196340990@5ec88f9
+scala> add.apply(1, 3) // same as add(1,3)
+res1: Int = 4
+scala> val addc = add.curried
+addc: Int => (Int => Int) = scala.Function2$$Lambda@1086
+scala> val inc = addc(1)
+inc: Int => Int = scala.Function2$$Lambda$1083/2010@11abd6c
+scala> inc(5)
+res2: Int = 6
+scala> val addt = add.tupled
+addt: ((Int, Int)) => Int = scala.Function2$$Lambda@219
+scala> addt( 1 -> 2)
+res3: Int = 3
+\end{lstlisting}
+
+\hypertarget{curried}{%
+\subsubsection{Curried}\label{curried}}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> val add = (x: Int) => (y : Int) => x+y
+add: Int => (Int => Int) = $$Lambda$1105/828629051@6aa18912
+scala> add(1)
+res1: Int => Int = $$Lambda$1106/2034790200@7b364f47
+scala> add(1)(2)
+res2: Int = 3
+\end{lstlisting}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> val x = new X()
+x: X = X@196a21e
+scala> x.add(5)(7)
+res0: Int = 12
+scala> x.add(5)_
+res1: Int => Int = $$Lambda$1135/1230346437@6e4ac3f5
+scala> res1(2)
+res2: Int = 7
+scala> x.add _
+res3: Int => (Int => Int) = $$Lambda$1153/855914030@78b293a
+\end{lstlisting}
+
+\hypertarget{pattern-matching}{%
+\subsection{Pattern Matching}\label{pattern-matching}}
+
+Expr ``match'' ``\{'' CaseClauses ``\}''
+
+\begin{itemize}
+\tightlist
+\item
+  No fall-through
+\item
+  case \_ is default pattern
+\item
+  Match throws an error if no pattern matches
+\end{itemize}
+
+.
+
+\begin{lstlisting}[language=scala]
+def patternMatching(i : Int) = {
+    i match {
+        case 0 => "Null"
+        case 1 => "One"
+        case _ => "?"
+    }
+}
+\end{lstlisting}
+
+\hypertarget{matching-lists}{%
+\subsubsection{Matching Lists}\label{matching-lists}}
+
+\begin{lstlisting}[language=scala]
+def length(list: List[Any]) : Int = {
+    list match {
+        case List() => 0
+        case x :: xs => 1 + length(xs)
+    }
+}
+\end{lstlisting}
+
+\hypertarget{matching-tuples}{%
+\subsubsection{Matching Tuples}\label{matching-tuples}}
+
+\begin{lstlisting}[language=scala]
+def process(input: Any) = {
+    input match {
+        case (a,b) => printf("Processing (%d,%d)...\n", a, b)
+        case "done" => println("done")
+        case _ => null
+    }
+}
+\end{lstlisting}
+
+\hypertarget{case-classes}{%
+\subsubsection{Case Classes}\label{case-classes}}
+
+\begin{itemize}
+\tightlist
+\item
+  The new keyword is not mandatory to create instances of these classes
+\item
+  Getter functions are automatically defined for the constructor
+  parameters
+\item
+  Default definitions for methods equals and hashCode are provided
+\item
+  Default definition for method toString is provided
+\item
+  Instances of these classes can be decomposed through pattern matching
+\end{itemize}
+
+.
+
+\begin{lstlisting}[language=scala]
+abstract class Tree
+case class Sum(x: Tree, y: Tree) extends Tree
+case class Prod(x: Tree, y: Tree) extends Tree
+case class Var(n: String) extends Tree
+case class Const(v: Int) extends Tree
+
+def eval(t: Tree, env: Map[String,Int]) : Int = t match {
+    case Sum(x, y) => eval(x, env) + eval(y, env)
+    case Prod(x, y) => eval(x, env) * eval(y, env)
+    case Var(n) => env(n)
+    case Const(v) => v
+}
+
+scala> val t = Sum(Sum(Var("x"),Var("x")), Prod(Const(7),Var("y")))
+t: Sum = Sum(Sum(Var(x),Var(x)),Prod(Const(7),Var(y)))
+scala> eval(t, Map("x"->8, "y"->3))
+res0: Int = 37
+\end{lstlisting}
+
+\clearpage

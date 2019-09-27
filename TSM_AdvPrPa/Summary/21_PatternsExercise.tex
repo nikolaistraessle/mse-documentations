@@ -1,0 +1,82 @@
+\hypertarget{haskell-lists-and-patterns}{%
+\subsection{Haskell Lists and Patterns}\label{haskell-lists-and-patterns}}
+
+\hypertarget{list-sugaring}{%
+\subsubsection{List sugaring}\label{list-sugaring}}
+
+Rewrite the following expressions so that they don't contain the list
+constructor : (`cons') any longer.
+
+\begin{lstlisting}[language=Haskell]
+s1 = 1 : 2 : 3 : [4] = [1,2,3,4]
+s2 = 1 : 2 : [3 , 4] = [1,2,3,4]
+s3 = (1 : 2 : []) : (3 : []) : [[1,2],[3]]
+s4 = (1 , 2) : (3 , 4) : [(5 , 6)] = [(1,2),(3,4),(5,6)]
+s5 = [] : [] = [[]]
+s6 = [] : [] : [] [[], []]
+s7 = ([] : []) : [] = [[[]]]
+s8 = (([] : []) : []) : [] = [[[[]]]]
+s9 = 'a' : 'b' : [] = [ab] = "ab"
+\end{lstlisting}
+
+\hypertarget{list-desugaring}{%
+\subsubsection{List desugaring}\label{list-desugaring}}
+
+Rewrite the following expressions so that they contain the square
+brackets {[}and{]} only as list constructor {[}{]} (`nil').
+
+\begin{lstlisting}[language=Haskell]
+d1 = [1 , 2 , 3] = 1 : 2 : 3 : []
+d2 = [[1 , 2] , [] , [3 , 4]] = (1 : [2]) : ([]) : (3 : [4]) : []
+\end{lstlisting}
+
+\hypertarget{pattern-matching}{%
+\subsubsection{Pattern Matching}\label{pattern-matching}}
+
+Given are the following function and value declarations. Give the type
+of each function and evaluate the expressions in the value declarations.
+Give reasons for possible errors in types or pattern matching.
+
+\begin{lstlisting}[language=Haskell]
+f1 (x: y: z) = (x, y, z)
+f2 [x, y] = (x, y)
+f3 (x : y : []) = (x, y)
+
+a11 = f1 [] ==> error
+a21 = f2 [] ==> error
+a31 = f3 [] ==> error
+
+a12 = f1 [1] ==> error
+a22 = f2 [1] ==> error
+a32 = f3 [1] ==> error
+
+a13 = f1 [1,2] ==> (1,2,[]) :: Num b => (b, b, [b])
+a23 = f2 [1,2] ==> (1,2) :: Num b => (b, b)
+a33 = f3 [1,2] ==> (1,2) :: Num b => (b, b)
+
+a14 = f1 [1, 2, 3] ==> (1,2,[3]) :: Num b => (b, b, [b])
+a24 = f2 [1, 2, 3] ==> error
+a34 = f3 [1, 2, 3] ==> error
+
+a15 = f1 (1: 2: 3 :[]) ==> (1,2,[3]) :: Num b => (b, b, [b])
+a25 = f2 (1: 2: 3 :[]) ==> error
+a35 = f3 (1: 2: 3 :[]) ==> error
+
+a16 = f1 ['a', 'b', 'c'] ==> ('a','b',"c") :: (Char, Char, [Char])
+a17 = f1 [[1], [2,3], []] ==> ([1],[2,3],[[]]) :: Num a => ([a], [a], [[a]])
+a18 = f1 (1: 2: 3: [4 ,5]) ==> (1,2,[3,4,5]) :: Num b => (b, b, [b])
+a19 = f1 [1..100] ==> (1,2,[3,4,5,...,100]) :: (Num b, Enum b) => (b, b, [b])
+
+g1 "dimdi " = 1
+g1 ['d', 'o', 'm', 'd', 'o'] = 2
+g1 ('d': 'i': 'n': 'g': []) = 3
+g1 ('d': 'i': 'n': 'g': _) = 4
+g1 (x : y) = 5
+g1 _ = 6
+
+b11 = g1 "domdo" ==> 2 :: Num p => p
+b12 = g1 "ding" ==> 3 :: Num p => p
+b13 = g1 "dingdimdi" ==> 4 :: Num p => p
+b14 = g1 "dumdu" ==> 5 :: Num p => p  (x fuer den ersten Char, y fuer den Rest)
+b15 = g1 "" ==> 6 :: Num p => p
+\end{lstlisting}

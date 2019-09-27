@@ -1,0 +1,89 @@
+\documentclass[a4paper,landscape,5pt]{scrartcl}
+\usepackage[margin=0.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{microtype}
+\usepackage{boites}
+\usepackage{pgf}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{helvet}
+\usepackage{hyperref}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{sh_comment}{rgb}{0.25, 0.42, 0.30}
+\definecolor{sh_keyword}{rgb}{0.37, 0.08, 0.25}
+\definecolor{sh_string}{rgb}{0.06, 0.10, 0.98}
+
+% own defined commands
+\newcommand{\boxtitle}[1]{\textcolor{Plum}{\textbf{#1}}}
+\newcommand{\sql}[1]{\lstinputlisting[language=SQL,aboveskip=1pt, belowskip=2pt]{#1}}
+\newcommand{\java}[1]{\lstinputlisting[language=Java,aboveskip=1pt, belowskip=2pt]{#1}}
+
+% multicol config
+\usepackage{multicol}
+\setlength\columnsep{1pt}
+
+% enumeration and itemize config
+\usepackage{enumitem}
+\setlist{nolistsep,leftmargin=*}
+
+% tikz config
+\usepackage{tikz}
+\usetikzlibrary{shapes,shapes.geometric,arrows,automata,fit,calc,positioning,matrix,backgrounds,decorations.pathreplacing}
+\tikzset{initial text={}}
+
+% change title size, color and spacing
+\usepackage{titlesec}
+\titleformat*{\section}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subsection}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subsubsection}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\paragraph}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+\titleformat*{\subparagraph}{\centering\fontsize{6pt}{6pt}\bfseries\color{RoyalPurple}}
+
+\titlespacing*{\section}
+{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}
+{0pt}{0pt}{0pt}
+
+% listings sql config
+\usepackage{listings}
+
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+\lstset{language=Java,
+  frame=single,
+  numberstyle=\tiny\color{gray},
+  rulecolor=\color{black},
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=false,
+  escapeinside={(*@}{@*)},
+  tabsize=1,
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\linespread{1}\ttfamily\footnotesize,
+}
+
+% remove indent of new paragraphs
+\setlength\parindent{0pt}
+
+% configure indents of breakboxes
+\def\breakboxparindent{0pt}
+\def\breakboxskip{1pt}
+
+% remove page numbering
+\pagenumbering{gobble}
+
+
+\newcommand\tightlist

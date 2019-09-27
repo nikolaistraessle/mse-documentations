@@ -1,0 +1,179 @@
+\hypertarget{architectures-of-parallel-infrastructures}{%
+\section{Architectures of Parallel
+Infrastructures}\label{architectures-of-parallel-infrastructures}}
+
+\hypertarget{implicit-vs.explicit-parallelism}{%
+\subsection{Implicit vs.~explicit
+parallelism}\label{implicit-vs.explicit-parallelism}}
+
+\textbf{Implicit} means, processors have multiple functional units and
+execute multiple instructions in the same cycle. e.g.
+
+\begin{itemize}
+\tightlist
+\item
+  pipelining
+\item
+  superscalar execution (more than one instruction fetcher)
+\item
+  very long instruction word processors
+\end{itemize}
+
+\textbf{Explicit} parallelism means the program must specify concurrency
+(control structure) and interaction (communication model) between
+concurrent subtasks.
+
+\hypertarget{parallel-programming-models}{%
+\subsection{Parallel programming
+models}\label{parallel-programming-models}}
+
+\begin{itemize}
+\tightlist
+\item
+  Process based models
+\item
+  Lightweight processes and Threads
+\item
+  Parallel programming language with syntax to specify parallelism
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Not really common or used anymore
+  \end{itemize}
+\item
+  Directive based programming models
+
+  \begin{itemize}
+  \tightlist
+  \item
+    extend the threaded model by facilitating creation and
+    synchronization of threads
+  \item
+    Examples: Open MP, Linda, POP-C++
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{parallel-machine-model}{%
+\subsubsection{Parallel Machine Model}\label{parallel-machine-model}}
+
+\begin{itemize}
+\tightlist
+\item
+  PRAM (Parallel Random Access Machine)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    consists of p processors and a global memory of unbounded size that
+    is uniformly accessible to all processors
+  \item
+    processors share a common clock but may execute different
+    instructions in each cycle
+  \end{itemize}
+\end{itemize}
+
+There are following memory access handling variatens:
+
+\begin{itemize}
+\tightlist
+\item
+  Exclusive-read, exclusive-write (EREW)
+\item
+  Concurrent-read, exclusive-write (CREW)
+\item
+  Exclusive-read, concurrent-write (ERCW)
+\item
+  Concurrent-read, concurrent-write (CRCW)
+\end{itemize}
+
+But what does concurrent write mean?
+
+\begin{itemize}
+\tightlist
+\item
+  Common: write only if all values are identical
+\item
+  Arbitrary: write the data from a randomly selected processor
+\item
+  Priority: follow a predetermined priority order
+\item
+  Sum: write the sum of all data items.
+\end{itemize}
+
+\hypertarget{different-grains-of-parallelism}{%
+\subsection{Different grains of
+parallelism}\label{different-grains-of-parallelism}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Granularity}: the \textbf{ratio} of computation to
+  communication
+
+  \begin{itemize}
+  \tightlist
+  \item
+    periods of computation are separated from periods of communication
+    by synchronization events
+  \item
+    the parallel programmer has to select the right granularity to
+    benefit from the underlying platform
+  \end{itemize}
+\item
+  Chunking
+
+  \begin{itemize}
+  \tightlist
+  \item
+    How do I split the work?
+  \item
+    determining the amount of \textbf{data to assign} to each task
+    (chunk or grain size)
+  \end{itemize}
+\end{itemize}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+The best performance depends on the algorithm and the used hardware environment \\
+\textbf{General rule}: increase chunk size if the communication overhead is too large
+\end{tcolorbox}
+
+\hypertarget{trade-offs-with-the-selected-chunk-size}{%
+\subsubsection{Trade-offs with the selected chunk
+size}\label{trade-offs-with-the-selected-chunk-size}}
+
+\begin{itemize}
+\tightlist
+\item
+  Fine-grained Parallelism
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{better load-balancing}
+  \item
+    low arithmetic intensity
+  \item
+    may not have enough work to hide long-duration asynchronous
+    communication
+  \item
+    too fine granularity leads to too \textbf{much overhead} (for
+    communication)
+  \end{itemize}
+\item
+  Coarse-grained Parallelism
+
+  \begin{itemize}
+  \tightlist
+  \item
+    high arithmetic intensity
+  \item
+    complete applications can serve as the grain of parallelism
+  \item
+    more difficult to load balance efficiently
+  \end{itemize}
+\end{itemize}
+
+\textit{Irgendwie haben wir nicht mehr weitergemacht. Fehlende Kapitel sind: Control structure of parallel platforms, Communication model of parallel platforms,  Interconnection networks, Network topologies, Communication costs in parallel systems}
+
+\clearpage

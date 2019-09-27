@@ -1,0 +1,69 @@
+\hypertarget{haskell-expressions}{%
+\section{Haskell Expressions}\label{haskell-expressions}}
+
+In each of the following problems some declarations are given. Give the
+most general type of each declared value, and if the value is not a
+function, then also the result of evaluating it.
+
+\hypertarget{lambda-expressions}{%
+\subsection{Lambda expressions}\label{lambda-expressions}}
+
+\begin{lstlisting}[language=Haskell]
+f01 :: Num a => a -> a
+f01 = \x -> 2 * x
+f01' = \x -> 2 * x :: Num a => a -> a
+f01'' () = \x -> 2 * x :: Num a => () -> a -> a
+f01''' _ = \x -> 2 * x :: Num a => p -> a -> a
+
+f02 = \x -> \y -> x + y :: Num a => a -> a -> a
+f03 = \x y -> x + y :: Num a => a -> a -> a
+f04 = = \y -> x + y ==> error (x not known)
+f05 = \(x, y) -> x + y :: Num a => (a, a) -> a
+f06 = \[x, y] -> x + y :: Num a => [a] -> a
+
+f07 = [\x -> x +1, \x -> 2* x, \x -> x ^2] :: Num a => [a -> a]
+f08 = head f07 5 :: Num a => a
+f09 = \x -> x :: p -> p
+f10 = [f09, \x -> x +1] :: Num a => [a -> a]
+f11 = \_ -> (\x -> x +1 , \() -> 'a') :: Num a => p -> (a -> a, () -> Char)
+\end{lstlisting}
+
+\hypertarget{sections}{%
+\subsection{sections}\label{sections}}
+
+\begin{lstlisting}[language=Haskell]
+x ^+^ y = x^2 + y^2
+g01 = (^+^) :: Num a => a -> a -> a
+g02 = (^+^2) :: Num a => a -> a
+g03 = (3^+^) :: Num a => a -> a
+g04 = (3^+^2) :: Num a => a
+
+g05 x y = 2*x + 3*y :: Num a => a -> a -> a
+g06 = (`g05` 2) :: Num a => a -> a
+g07 = (2`g05`) :: Num a => a -> a
+g08 = g06 3 :: Num a => a
+g09 = g07 4 :: Num a => a
+
+g10 x y z = 2*x + 3*y + 4*z :: Num a => a -> a -> a -> a
+g14 x = (g10 (x +1)) :: Num a => a -> a -> a -> a
+g15 = g14 2 3 4 :: Num a => a
+
+g16 n = \x -> ([(+), (-), (*)] !! n ) x 2 :: Num a => Int -> a -> a
+g17 = g16 1 5 :: Num a => a
+\end{lstlisting}
+
+\hypertarget{list-comprehensions}{%
+\subsection{List comprehensions}\label{list-comprehensions}}
+
+\begin{lstlisting}[language=Haskell]
+h01 = [ x | x <- [1 .. 5]] :: (Num a, Enum a) => [a]
+h02 = [2*x | x <- [1 .. 5]] :: (Num a, Enum a) => [a]
+h03 = [ x-y | x <- [1 .. 3], y <- [1 .. 4]] :: (Num a, Enum a) => [a]
+h04 = [ x-y | y <- [1 .. 3], x <- [1 .. 4]] :: (Num a, Enum a) => [a]
+h05 = [ x+y | x <- [1 .. 3], y <- [1 .. 4], x >= y ] :: (Num a, Enum a, Ord a) => [a]
+h06 = [ head x | x <- ["dimdi", "schnurpsel", "zumsel"]] :: [Char]
+h07 = [ x | (x:_) <- ["dimdi", "schnurpsel", "zumsel"]] :: [Char]
+h08 = [ xs | ('s':xs) <- ["dimdi", "schnurpsel", "zumsel"]] ==> error (s unkown)
+\end{lstlisting}
+
+\clearpage

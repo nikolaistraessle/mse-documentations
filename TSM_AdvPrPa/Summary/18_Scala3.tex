@@ -1,0 +1,627 @@
+\hypertarget{scala-types}{%
+\section{Scala - More Types}\label{scala-types}}
+
+\hypertarget{inner-types}{%
+\subsection{Inner Types}\label{inner-types}}
+
+Classes, traits and singleton objects can have inner types, i.e.
+
+\begin{itemize}
+\tightlist
+\item
+  Inner classes
+\item
+  Inner traits
+\item
+  Inner type members
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Outer {
+    class InnerClass
+    trait InnerTrait
+    type InnerType = String
+}
+\end{lstlisting}
+
+\hypertarget{path-dependent-types}{%
+\subsubsection{Path-dependent Types}\label{path-dependent-types}}
+
+To access an inner type you need an outer instance
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Outer {
+    class Inner
+    def put(inner: /* optional: this.*/Inner) {}
+}
+defined class Outer
+
+scala> val outer1 = new Outer
+outer1: Outer = Outer@6ef8fff2
+
+scala> val inner1 = new outer1.Inner
+inner1: outer1.Inner = Outer$Inner@11c7d2e3
+\end{lstlisting}
+
+The type of an inner instance depends on the outer instance
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> val outer2 = new Outer
+outer2: Outer = Outer@73a1deca
+
+scala> val inner2 = new outer2.Inner
+inner2: outer2.Inner = Outer$Inner@1a1dd898
+
+scala> outer1.put(inner2)
+<console>:14: error: type mismatch;
+found   : outer2.Inner
+required: outer1.Inner
+\end{lstlisting}
+
+The inner types share a common supertype, denoted by a type selection
+Outer\#Inner
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Outer {
+    class Inner
+    def put(inner: Outer#Inner) {}
+}
+defined class Outer
+
+scala> val inner1: Outer#Inner = new outer1.Inner
+inner1: Outer#Inner = Outer$Inner@502c500d
+
+scala> val inner2: Outer#Inner = new outer2.Inner
+inner2: Outer#Inner = Outer$Inner@7e912427
+
+scala> outer2.put(inner1)
+\end{lstlisting}
+
+\hypertarget{dependent-types}{%
+\subsubsection{Dependent Types}\label{dependent-types}}
+
+Dependent types are types which depend on a value. They can be emulated
+with path dependent types.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+object Arrays {
+    case class OfLength(n: Int) {
+        class Arr {
+            private val a: Array[Int] = new Array[Int](n)
+            def apply(x: Int) = a(x)
+            def update(x: Int, y: Int): Unit = {a(x) = y}
+        }
+    }
+    // The following types are two different types
+    val ofLength4 = OfLength(4)
+    val ofLength5 = OfLength(5)
+
+    type ArrayOfLength4 = ofLength4.Arr
+    type ArrayOfLength5 = ofLength5.Arr
+
+    def f(a: ArrayOfLength5): Unit = { a(4) = 4 }
+
+    val a4 = new ArrayOfLength4
+    val a5 = new ArrayOfLength5
+
+    f(a5) // <<= OK
+    f(a4) // <<= type error
+    //<console> :14: error: type mismatch;
+    //found     : ofLength4.Arr
+    //required  : ArrayOfLength5
+    //(which expands to) ofLength5.Arr
+}
+\end{lstlisting}
+
+\hypertarget{singleton}{%
+\subsection{Singleton}\label{singleton}}
+
+Singleton type is a type which represents a reference. Given any
+reference v, the type v.type has two values: v and null.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> class X
+defined class X
+scala> val x = new X
+x: X = X@12d05dde
+scala> var y: x.type = x
+y: x.type = X@12d05dde
+scala> y = null
+y: x.type = null
+scala> y = new X
+<console>   :13: error: type mismatch;
+found       : X
+required    : x.type
+\end{lstlisting}
+
+\clearpage
+\hypertarget{application-1-method-chaining-fluent-interfaces}{%
+\subsubsection{Application 1: Method Chaining (fluent
+interfaces)}\label{application-1-method-chaining-fluent-interfaces}}
+
+Fluent interface is a method for designing object oriented APIs based
+extensively on method chaining with the goal of making the readability
+of the source code close to that of ordinary written prose.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Document {
+    def setTitle(title: String) = { ...; this }
+    def setAuthor(author: String) = { ...; this }
+    ...
+}
+
+article.setAuthor("Horstmann").setTitle("Scala")
+
+class Book extends Document {
+    def addChapter(chapter: String) = { ...; this }
+    ...
+}
+
+val book = new Book()
+book.setTitle("Scala").addChapter(chapter1)
+error: value addChapter is not a member of Document
+\end{lstlisting}
+
+With an additional statement, one can preserve the original type in the
+class:
+
+\begin{lstlisting}[language=scala,mathescape=false]
+class Document {
+    def setTitle(title: String): this.type = { ...; this }
+    def setAuthor(author: String): this.type = { ...; this }
+    ...
+}
+class Book extends Document {
+    def addChapter(chapter: String) = { ...; this }
+    ...
+}
+
+scala> book.setTitle("Scala").addChapter("ch1")
+res32: Book = Book@5213fe32
+scala> book.setTitle("Scala")
+res33: book.type = Book@5213fe3
+\end{lstlisting}
+
+\hypertarget{application-2-fluent-interfaces}{%
+\subsubsection{Application 2: Fluent
+interfaces}\label{application-2-fluent-interfaces}}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+object Title
+class Document {
+    var title: String = ""
+    private var useNextArgAs: Any = null
+    def set(obj: Title.type) = { useNextArgAs = obj; this }
+    def to(arg: String) = {
+        if(useNextArgAs == Title) { title = arg; } // else ...
+    }
+    //...
+}
+val book = new Document
+book.set(Title).to("Scala")
+
+book set Title to "Scala"
+//In scala it is possible to leave away the paranthesis and the dots, if there is only one parameter.
+\end{lstlisting}
+
+\clearpage
+\hypertarget{implicits}{%
+\subsection{Implicits}\label{implicits}}
+
+\hypertarget{implicit-conversions}{%
+\subsubsection{Implicit Conversions}\label{implicit-conversions}}
+
+Implicit conversion function
+
+\begin{itemize}
+\tightlist
+\item
+  Method or function with one argument (method name is irrelevant)
+\item
+  Marked with the implicit keyword
+\item
+  The compiler knows how to compile the given type to the target type
+
+  \begin{itemize}
+  \tightlist
+  \item
+    e.g.~when actually a Fraction is required but the given type is
+    integer, the compiler realizes that there is a converter.
+  \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+import scala.language.implicitConversions
+implicit def int2Fraction(n: Int) = Fraction(n,1)
+
+scala> val f1: Fraction = 2
+f1: Fraction = Fraction(2,1)
+scala> 3 * Fraction(4,5)
+res2: Fraction = Fraction(12,5)
+\end{lstlisting}
+
+Another example
+
+\begin{lstlisting}[language=scala,mathescape=false]
+//Could also write "implicit class BlingString(string: String) {.." and leave the "implicit def ..." away.
+
+class BlingString(string: String) {
+    def bling = "*" + string + "*"
+}
+implicit def blingToString(s: String) = new BlingString(s)
+
+scala> "Hello".bling
+res1: String = *Hello*
+
+scala> "Hello".bling.bling
+res2: String = **Hello**
+\end{lstlisting}
+
+Instead of creating a new instance for every application, a value class
+can be used
+
+\begin{itemize}
+\tightlist
+\item
+  Value classes avoid creation of objects
+\item
+  Value class has a single public val parameter that is the underlying
+  runtime representation
+\item
+  Has only defs as members, but no vals, vars, or nested traits, classes
+  or objects
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+implicit class BlingString(val string: String) extends AnyVal {
+    def bling = "*" + string + "*"
+}
+\end{lstlisting}
+
+\hypertarget{implicit-conversion-rules}{%
+\subsubsection{Implicit Conversion
+Rules}\label{implicit-conversion-rules}}
+
+Implicit conversions are considered in three cases.
+
+If the type of an expression differs from the expected type
+
+\begin{lstlisting}[language=scala,mathescape=false]
+val f: Fraction = 12
+\end{lstlisting}
+
+If a non-existent member is accessed
+
+\begin{lstlisting}[language=scala,mathescape=false]
+"hello".bling
+\end{lstlisting}
+
+If an object invokes a method whose parameters don't match the given
+arguments
+
+\begin{lstlisting}[language=scala,mathescape=false]
+3 * Fraction(4,5) // Int.* does not accept a Fraction arg
+\end{lstlisting}
+
+In order to be applied, an implicit conversion must be in scope
+
+Current scope: Identifiers accessible without prefix
+
+\begin{itemize}
+\tightlist
+\item
+  Local identifiers
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Members of an enclosing scope
+  \item
+    Imported identifiers
+  \end{itemize}
+\item
+  Implicit scope: Members of companion objects of associated types
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The types in question (source or target type)
+  \item
+    All parts of a parameterized type, e.g.~A{[}B,C{]}
+  \item
+    All parts of a compound type, e.g.~A with B with C
+  \end{itemize}
+\item
+  Precedence rules
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Local implicits
+  \item
+    Imported implicits
+  \item
+    Companion object of the types
+  \item
+    Companion object of the type arguments of the type
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{implicit-parameters}{%
+\subsubsection{Implicit Parameters}\label{implicit-parameters}}
+
+\begin{itemize}
+\tightlist
+\item
+  Use the keyword implicit to define an implicit parameter list
+\item
+  This only works for the last parameter list
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+case class Delimiters(left: String, right: String)
+
+def quote(text: String)(implicit delims: Delimiters) = delims.left + text + delims.right
+
+scala> quote("Bonjour")(Delimiters("<<", ">>")) // Guillemets
+res1: String = <<Bonjour>>
+
+scala> quote("Hello")
+<console>:14: error: could not find implicit value for parameter
+delims: Delimiters
+\end{lstlisting}
+
+For this, one can define which implicit types should be used, if nothing
+is given with the function.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+import java.io.PrintStream
+import java.lang._
+implicit val out = System.out
+
+def log(msg: String)(implicit out: PrintStream) = out.println(msg)
+
+scala> log("Implicits are cool")
+Implicits are cool
+
+scala> log("here is an error")(System.err)
+here is an error
+\end{lstlisting}
+
+\hypertarget{type-classes}{%
+\subsection{Type classes}\label{type-classes}}
+
+Type classes are among the most powerful features in Haskell. They allow
+you to define generic interfaces that provide a common feature set over
+a wide variety of types. Type classes are at the heart of some basic
+language features such as equality testing and numeric operators.
+
+\begin{itemize}
+\tightlist
+\item
+  Type classes define a group (class) of types which satisfy some
+  contract (defined in a trait)
+\item
+  Type classes add ad-hoc polymorphism
+\item
+  Example: sort method on a list
+\end{itemize}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+scala> List(3,2,1).sorted
+res12: List[Int] = List(1, 2, 3)
+\end{lstlisting}
+
+What constraint is defined on the type parameter?
+
+\begin{itemize}
+\tightlist
+\item
+  class List{[}A \textless{}: Comparable{[}A{]}{]} \{ \ldots{} \}
+\item
+  def sorted\href{implicit\%20ord:\%20math.Ordering\%5BB\%5D}{B
+  \textgreater{}: A}: List{[}A{]}
+\end{itemize}
+
+\hypertarget{polymorphism}{%
+\subsubsection{Polymorphism}\label{polymorphism}}
+
+\begin{itemize}
+\tightlist
+\item
+  Ad-hoc polymorphism
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Different implementations depending on the parameter types
+  \item
+    Method overloading is one example of ad-hoc polymorphism
+  \end{itemize}
+\item
+  Parametric polymorphism
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Code to be used transparently with any number of new types
+  \item
+    Generics is an example of parametric polymorphism
+  \end{itemize}
+\item
+  Subtype polymorphism
+\item
+  Subtyping allows a function to be written to take an object of a
+  certain type T, but also work correctly with subtypes of T
+  (=\textgreater{} Liskov substitution principle)
+\end{itemize}
+
+\hypertarget{monoid}{%
+\subsubsection{Monoid}\label{monoid}}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait Monoid[A] {
+    def op(x: A, y: A) : A
+    def unit : A
+}
+
+//Two implementations
+implicit object stringMonoid extends Monoid[String] {
+    def op(x: String, y: String) = x + y
+    def unit = ""
+}
+implicit object addMonoid extends Monoid[Int] {
+    def op(x: Int, y: Int) = x + y
+    def unit = 0
+}
+
+//Object of Monoid
+object Monoid {
+    def apply[A](implicit m: Monoid[A]) = m
+}
+
+scala> Monoid[String]
+res1: Monoid[String] = stringMonoid$@64fc6470
+scala> Monoid[Int]
+res2: Monoid[Int] = addMonoid$@680937c9
+\end{lstlisting}
+
+\hypertarget{use-monoids-for-a-list-accumulator}{%
+\subsubsection{Use Monoids for a List
+accumulator}\label{use-monoids-for-a-list-accumulator}}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+def acc[A](list: List[A])(implicit m: Monoid[A]) : A = list.foldLeft(m.unit)(m.op)
+
+scala> acc(List(1,2,3))
+res1: Int = 6
+
+scala> acc(List("Hello", "World"))
+res2: String = HelloWorld
+
+scala> acc(List(List(1), List(1,2), List(1,2,3)))
+<console>:12: error: could not find implicit value for parameter m:
+Monoid[List[Int]]
+\end{lstlisting}
+
+\hypertarget{conditional-implicits}{%
+\subsubsection{Conditional implicits}\label{conditional-implicits}}
+
+Implicit methods can themselves have implicit parameters. This is super
+fancy!
+
+\begin{lstlisting}[language=scala,mathescape=false]
+implicit def listMonoid[A](implicit m: Monoid[A]) =
+    new Monoid[List[A]] {
+        def op(xs: List[A], ys: List[A]): List[A] =
+            if(xs.isEmpty) ys
+            else if (ys.isEmpty) xs
+            else m.op(xs.head, ys.head) :: op(xs.tail, ys.tail)
+        def unit = List()
+    }
+}
+
+scala> acc(List(List(1), List(1,2), List(1,2,3)))
+res3: List[Int] = List(3, 4, 3)
+//The lists are added element-wise
+//[1+1+1, 0+2+2, 0+0+3] = [3, 4, 3]
+\end{lstlisting}
+
+\clearpage
+\hypertarget{shorthand-notation-for-implicit-parameters}{%
+\subsubsection{Shorthand notation for implicit
+parameters}\label{shorthand-notation-for-implicit-parameters}}
+
+\begin{lstlisting}[language=scala,mathescape=false]
+def acc[A](list: List[A])(implicit m: Monoid[A]) : A = list.foldLeft(m.unit)(m.op)
+
+def acc[A : Monoid](list : List[A]) : A = {
+    val m = Monoid[A]
+    list.foldLeft(m.unit)(m.op)
+}
+\end{lstlisting}
+
+\hypertarget{conclusion-to-type-classes}{%
+\subsubsection{Conclusion to type
+classes}\label{conclusion-to-type-classes}}
+
+Type classes allow us to
+
+\begin{itemize}
+\tightlist
+\item
+  introduce polymorphic functions, extensible (by composition) after the
+  original code has been written (by providing new implementations)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Example: Monoid for String, Int and List{[}A{]}
+  \end{itemize}
+\item
+  introduce generic functions in terms of the prototypes assumed to
+  exist
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Example: Method acc
+  \end{itemize}
+\item
+  Implicit resolution
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Implicits are looked for in the local scope (contrary to Haskell)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Several different implementations can be provided for a particular
+      type
+    \item
+      With imports the implicits to be used are controllable
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\clearpage
+\hypertarget{limitations}{%
+\subsubsection{Limitations}\label{limitations}}
+
+The following code shows three classes. Two B classes are derivated from
+A and override their own show method.
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait Show { def show: String }
+class A extends Show { override def show = "A" }
+class B1 extends A { override def show = "B1" }
+class B2 extends A { override def show = "B2" }
+
+scala> val list = List(new A, new B1, new B2)
+list: List[A] = List(A@16d48c9, B1@2dc584da, B2@2951bb0)
+scala> list.map( x => x.show )
+res1: List[String] = List(A, B1, B2)
+\end{lstlisting}
+
+This can also be done with type classes:
+
+\begin{lstlisting}[language=scala,mathescape=false]
+trait Showable[T] { def show(x: T): String }
+object Showable {
+    implicit object a extends Showable[A]{ def show(x: A) = "TC:A" }
+    implicit object b1 extends Showable[B1]{ def show(x: B1) = "TC:B1"}
+    implicit object b2 extends Showable[B2] { def show(x: B2) = "TC:B2" }
+}
+def show[T : Showable](x: T) = {
+    implicitly[Showable[T]].show(x)
+}
+scala> list.map( x => show(x))
+res2: List[String] = List(TC:A, TC:A, TC:A)
+\end{lstlisting}
+
+As you see, it prints everytime A. This is because the type is evaluated
+at compile time and the type of the List is A.
+
+\clearpage

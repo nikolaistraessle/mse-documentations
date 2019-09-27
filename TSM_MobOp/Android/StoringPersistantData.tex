@@ -1,0 +1,167 @@
+\section{Storing Persistent Application Data}
+
+\begin{breakbox}
+\begin{itemize}
+\tightlist
+\item
+  Shared Preferences\\
+  Store private primitive data in key-value pairs in an external file
+\item
+  Internal Storage\\
+  Store private data on the device memory
+\item
+  External Storage\\
+  Store public data on the shared external storage
+\item
+  SQLite Databases\\
+  Store structured data in a private database
+\item
+  Network Connection\\
+  Store data over the web on your own server or in a cloud
+\end{itemize}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Shared Preferences}
+
+The \textbf{SharedPreferences} class provides a general framework that
+allows you to save and retrieve persistent \textbf{key-value pairs of
+primitive data types}.
+
+\textbf{Get Methods:}
+\begin{itemize}
+    \item getPreferences() for one preference file
+    \item getSharedPreferences() for
+multiple preference files, distinguished by name.
+\end{itemize}
+
+\textbf{Save Methods:} \\
+Call edit() to get the Editor, add values with methods such as
+putBoolean(), putString(), \ldots{} and commit the new values with
+\textbf{commit()}.
+
+\clearpage
+\begin{lstlisting}
+public class Calc extends Activity {
+    public static final String PREFS_NAME = "MyPrefsFile";
+
+    @Override
+    protected void onCreate(Bundle state){
+        super.onCreate(state);
+        . . .
+        // Restore preferences
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0); // 0: Permission
+        boolean silent = settings.getBoolean("silentMode", false); // false: Default value
+        setSilent(silent);
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        // We need an Editor object to make preference changes.
+        // All objects are from android.content.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("silentMode", mSilentMode);
+        // Commit the edits!
+        editor.apply();
+        // use editor.commit() if you need the result value
+    }
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Interal Storage}
+
+By default, files saved to the internal storage are private to your
+application $\Rightarrow$ Other applications cannot access them.
+
+To create and write a private file to the internal storage: 
+\begin{itemize}
+    \item Call
+\textbf{openFileOutput()} with the name of the file and the operating
+mode. This returns a FileOutputStream
+\item Write to the file with write()
+\item Close the stream with close()
+\end{itemize}
+
+\begin{lstlisting}
+String FILENAME = "hello_file";
+String string = "hello world!";
+FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+fos.write(string.getBytes());
+fos.close();
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{External Storage}
+
+\begin{itemize}
+\tightlist
+\item
+  First you need to check the availability: getExternalStorageState()
+\item
+  Then you can access the data dir with File Streams
+  getExternalFilesDir()
+\end{itemize}
+
+\begin{lstlisting}
+File file = new File(getExternalFilesDir(null), "DemoFile.jpg");
+
+try {
+    // Very simple code to copy a picture from the
+    // application's resource into the external
+    // file. This code does no error checking, and
+    // assumes the picture is small
+    // (does not try to copy it in chunks).
+    InputStream is = getResources().openRawResource(R.drawable.balloons);
+    OutputStream os = new FileOutputStream(file);
+    byte[] data = new byte[is.available()];
+    is.read(data);
+    os.write(data);
+    is.close();
+    os.close();
+}
+\end{lstlisting}
+\end{breakbox}
+
+\columnbreak
+\begin{breakbox}
+\boxtitle{Network Connection}
+
+To send and receive data you may employ the class HttpURLConnection.
+
+\begin{lstlisting}
+URL url = new URL("http://www.android.com/");
+HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+try {
+    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+    readStream(in);
+    finally {
+        urlConnection.disconnect();
+    }
+}
+\end{lstlisting}
+\end{breakbox}
+
+\begin{breakbox}
+\boxtitle{Firebase}
+\begin{lstlisting}
+FirebaseDatabase database = FirebaseDatabase.getInstance();
+DatabaseReference reference reference = database.getReference("url/to/node");
+
+User user = new User(name, email);
+reference.child("users").child(userId).setValue(user);
+
+ValueEventListener postListener = new ValueEventListener() {
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+        // Get Post object and use the values to update the UI
+        Post post = dataSnapshot.getValue(Post.class);
+        // ...
+    }
+    ...
+\end{lstlisting}
+\end{breakbox}
